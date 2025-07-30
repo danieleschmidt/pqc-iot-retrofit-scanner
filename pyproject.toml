@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pqc-iot-retrofit-scanner"
+version = "0.1.0"
+description = "CLI + GitHub Action that audits embedded firmware and suggests post-quantum cryptography drop-ins"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Daniel Schmidt", email = "daniel@terragon.ai"}
+]
+keywords = ["post-quantum", "cryptography", "iot", "firmware", "security"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Embedded Systems",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "click>=8.0",
+    "cryptography>=3.4",
+    "pyyaml>=6.0",
+    "requests>=2.25",
+    "rich>=10.0",
+    "capstone>=4.0",
+    "keystone-engine>=0.9",
+    "lief>=0.12",
+]
+
+[project.optional-dependencies]
+analysis = [
+    "angr>=9.2",
+    "r2pipe>=1.7",
+    "ghidra-bridge>=0.3",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=22.0",
+    "ruff>=0.1",
+    "mypy>=1.0",
+    "pre-commit>=2.20",
+]
+
+[project.urls]
+Homepage = "https://github.com/terragon-ai/pqc-iot-retrofit-scanner"
+Documentation = "https://pqc-iot-retrofit.readthedocs.io"
+Repository = "https://github.com/terragon-ai/pqc-iot-retrofit-scanner"
+Issues = "https://github.com/terragon-ai/pqc-iot-retrofit-scanner/issues"
+
+[project.scripts]
+pqc-iot = "pqc_iot_retrofit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.ruff]
+select = ["E", "F", "W", "I", "N", "D", "UP", "B", "S"]
+ignore = ["D100", "D101", "D102", "D103", "D104", "D105"]
+line-length = 88
+target-version = "py38"
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+addopts = "--cov=src --cov-report=html --cov-report=term-missing"
