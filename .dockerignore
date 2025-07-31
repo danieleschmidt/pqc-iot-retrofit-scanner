@@ -1,0 +1,176 @@
+# Docker ignore file for PQC IoT Retrofit Scanner
+# Excludes unnecessary files from Docker build context
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Development tools
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment files
+.env
+.env.*
+.envrc
+.venv/
+venv/
+ENV/
+env/
+
+# Documentation build
+docs/_build/
+docs/.doctrees/
+site/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.appveyor.yml
+
+# Security and secrets
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+secrets/
+.secrets
+credentials/
+private/
+
+# Large files and data
+firmware_samples/
+datasets/
+largefiles/
+*.bin
+*.elf
+*.hex
+*.img
+*.rom
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+*.log
+
+# Cache directories
+.cache/
+.mypy_cache/
+.ruff_cache/
+node_modules/
+
+# Analysis artifacts
+reversing_cache/
+analysis_temp/
+*.ghidra/
+.radare2/
+
+# PQC specific
+test_vectors/
+benchmarks/results/
+*.bench
+performance_logs/
+crypto_artifacts/
+generated_patches/
+ota_packages/
+
+# Container and deployment files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+kubernetes/
+helm/
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor backups
+*~
+.#*
+#*#
+
+# Jupyter Notebook checkpoints  
+.ipynb_checkpoints/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Archives
+*.zip
+*.tar.gz
+*.tar.bz2
+*.rar
+*.7z
+
+# README and documentation files (keep essential ones)
+# README.md is included in Dockerfile COPY
+CHANGELOG.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+
+# Configuration files that shouldn't be in production
+.pre-commit-config.yaml
+.bandit
+.secrets.baseline
+pytest.ini
+tox.ini
+noxfile.py
+
+# Development scripts
+scripts/dev/
+scripts/test/
+tools/

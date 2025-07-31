@@ -1,0 +1,34 @@
+[bandit]
+# Bandit configuration for PQC IoT Retrofit Scanner
+# Security linting configuration
+
+# Test set - includes all tests by default
+tests = B101,B102,B103,B104,B105,B106,B107,B108,B110,B112,B201,B301,B302,B303,B304,B305,B306,B307,B308,B309,B310,B311,B312,B313,B314,B315,B316,B317,B318,B319,B320,B321,B322,B323,B324,B325,B401,B402,B403,B404,B405,B406,B407,B408,B409,B410,B411,B412,B413,B501,B502,B503,B504,B505,B506,B507,B601,B602,B603,B604,B605,B606,B607,B608,B609,B610,B611,B701,B702,B703
+
+# Directories to scan
+# Note: Use '.' to scan the entire project, or specify paths
+# We scan src/ directory specifically for this project
+
+# Files to skip - test files should be excluded from some security checks
+skips = B101,B601,B603,B607
+
+# Exclude patterns
+exclude_dirs = tests,build,dist,docs/_build
+
+# Report format options: txt, json, csv, xml
+reports = txt
+
+# Severity levels: all, low, medium, high
+severity = medium
+
+# Confidence levels: all, low, medium, high  
+confidence = medium
+
+# Ignore specific vulnerabilities if they are false positives
+# Format: test_id:file_pattern
+# Example: B101:*_test.py (ignore assert_used_test in test files)
+
+# PQC/Crypto specific ignores
+# B301 - Pickle usage (may be needed for serializing crypto objects)
+# B403 - Crypto imports (expected in this project)
+# B501 - Request without certificate verification (may be acceptable in test environments)

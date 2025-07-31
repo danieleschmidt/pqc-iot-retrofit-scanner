@@ -1,0 +1,206 @@
+# Docker Compose configuration for PQC IoT Retrofit Scanner
+# Provides development, testing, and analysis environments
+version: '3.8'
+
+services:
+  # Main development environment
+  pqc-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      args:
+        BUILD_DATE: ${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
+        VCS_REF: ${VCS_REF:-$(git rev-parse --short HEAD)}
+        VERSION: ${VERSION:-dev}
+    container_name: pqc-iot-dev
+    volumes:
+      # Mount source code for live development
+      - ./src:/app/src:rw
+      - ./tests:/app/tests:rw
+      - ./docs:/app/docs:rw
+      - ./data:/app/data:rw
+      - ./output:/app/output:rw
+      # Mount config files
+      - ./.pre-commit-config.yaml:/app/.pre-commit-config.yaml:ro
+      - ./pyproject.toml:/app/pyproject.toml:ro
+      - ./pytest.ini:/app/pytest.ini:ro
+      # Persistent volume for development tools
+      - pqc-dev-home:/home/pqciot
+    environment:
+      - PQC_LOG_LEVEL=DEBUG
+      - PQC_DEV_MODE=1
+      - PYTHONPATH=/app/src
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    networks:
+      - pqc-network
+
+  # Testing environment
+  pqc-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: testing
+    container_name: pqc-iot-test
+    volumes:
+      - ./tests:/app/tests:ro
+      - ./src:/app/src:ro
+      - ./test-results:/app/test-results:rw
+    environment:
+      - PQC_TEST_MODE=1
+      - PYTEST_CURRENT_TEST
+    command: ["pytest", "-v", "--junitxml=/app/test-results/junit.xml", "--cov-report=xml:/app/test-results/coverage.xml"]
+    networks:
+      - pqc-network
+
+  # Production-like environment for integration testing
+  pqc-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: pqc-iot-prod
+    volumes:
+      - ./data:/app/data:rw
+      - ./output:/app/output:rw
+    environment:
+      - PQC_LOG_LEVEL=INFO
+      - PQC_PRODUCTION=1
+    networks:
+      - pqc-network
+
+  # Analysis environment with additional tools
+  pqc-analysis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: pqc-iot-analysis
+    volumes:
+      - ./data:/app/data:rw
+      - ./output:/app/output:rw
+      - ./analysis:/app/analysis:rw
+      - analysis-cache:/app/.cache
+    environment:
+      - PQC_LOG_LEVEL=DEBUG
+      - PQC_ANALYSIS_MODE=1
+      - GHIDRA_INSTALL_DIR=/opt/ghidra
+    ports:
+      - "8888:8888"  # Jupyter notebook port
+    command: ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
+    networks:
+      - pqc-network
+
+  # Documentation generation service
+  pqc-docs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: pqc-iot-docs
+    volumes:
+      - ./docs:/app/docs:rw
+      - ./src:/app/src:ro
+      - docs-build:/app/docs/_build
+    environment:
+      - SPHINX_BUILD_DIR=/app/docs/_build
+    working_dir: /app/docs
+    command: ["sphinx-autobuild", ".", "_build", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"  # Documentation server port
+    networks:
+      - pqc-network
+
+  # Security scanning service
+  pqc-security:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: testing
+    container_name: pqc-iot-security
+    volumes:
+      - ./src:/app/src:ro
+      - ./security-reports:/app/security-reports:rw
+    environment:
+      - PQC_SECURITY_SCAN=1
+    command: >
+      bash -c "
+        bandit -r src/ -f json -o /app/security-reports/bandit.json &&
+        safety check --json --output /app/security-reports/safety.json &&
+        echo 'Security scans completed'
+      "
+    networks:
+      - pqc-network
+
+  # Database for storing analysis results (optional)
+  pqc-db:
+    image: postgres:15-alpine
+    container_name: pqc-iot-db
+    environment:
+      POSTGRES_DB: pqc_analysis
+      POSTGRES_USER: pqc_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dev_password}
+    volumes:
+      - pqc-db-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - pqc-network
+    profiles:
+      - database
+
+  # Redis for caching analysis results (optional)
+  pqc-cache:
+    image: redis:7-alpine
+    container_name: pqc-iot-cache
+    volumes:
+      - pqc-redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - pqc-network
+    profiles:
+      - cache
+
+  # Load balancer for scaling analysis (optional)
+  pqc-proxy:
+    image: nginx:alpine
+    container_name: pqc-iot-proxy
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - pqc-prod
+    networks:
+      - pqc-network
+    profiles:
+      - production
+
+# Networks
+networks:
+  pqc-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Volumes
+volumes:
+  pqc-dev-home:
+    driver: local
+  analysis-cache:
+    driver: local
+  docs-build:
+    driver: local
+  pqc-db-data:
+    driver: local
+  pqc-redis-data:
+    driver: local
+
+# Override configurations for different environments
+# Use: docker-compose -f docker-compose.yml -f docker-compose.override.yml up

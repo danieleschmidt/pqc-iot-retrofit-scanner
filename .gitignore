@@ -205,3 +205,74 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Security and secrets
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+secrets/
+.secrets
+.env.local
+.env.production
+.env.staging
+.env.test
+*.secret
+config/secrets/
+credentials/
+private/
+
+# Firmware and binary analysis
+firmware_samples/
+*.bin
+*.elf
+*.hex
+*.srec
+*.img
+*.rom
+reversing_cache/
+analysis_temp/
+*.ghidra/
+.radare2/
+
+# PQC specific
+test_vectors/
+benchmarks/results/
+*.bench
+performance_logs/
+crypto_artifacts/
+generated_patches/
+ota_packages/
+
+# IDE and development
+.vscode/settings.json
+.vscode/launch.json
+.idea/workspace.xml
+.idea/tasks.xml
+*.swp
+*.swo
+*~
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary and backup files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+
+# Large files and databases
+*.db
+*.sqlite
+*.sqlite3
+largefiles/
+datasets/
