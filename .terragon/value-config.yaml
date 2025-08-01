@@ -1,0 +1,173 @@
+# Terragon Autonomous SDLC Value Discovery Configuration
+# Tailored for MATURING repository (50-75% SDLC maturity)
+
+repository:
+  name: "pqc-iot-retrofit-scanner"
+  maturity_level: "maturing"
+  primary_language: "python"
+  framework: "click"
+  domain: "security"
+
+scoring:
+  weights:
+    maturing:
+      wsjf: 0.6          # High focus on value delivery
+      ice: 0.1           # Lower weight on ICE estimation
+      technicalDebt: 0.2 # Moderate debt focus
+      security: 0.1      # Base security weight
+    
+  thresholds:
+    minScore: 15         # Higher threshold for mature repos
+    maxRisk: 0.7         # Conservative risk tolerance
+    securityBoost: 2.5   # Strong security priority
+    complianceBoost: 2.0 # High compliance importance
+    performanceBoost: 1.5 # Performance improvements valued
+
+  multipliers:
+    hotspot: 3.0         # High-churn files get priority
+    critical_path: 2.5   # Core functionality boost
+    user_facing: 2.0     # User-impacting changes
+    technical_debt: 1.8  # Debt reduction valued
+
+discovery:
+  sources:
+    - gitHistory
+    - staticAnalysis
+    - issueTrackers
+    - vulnerabilityDatabases
+    - performanceMonitoring
+    - codeComments
+    - dependencyUpdates
+    - complianceGaps
+  
+  intervals:
+    immediate: "on_pr_merge"
+    security_scan: "hourly"
+    comprehensive: "daily"
+    deep_analysis: "weekly"
+    strategic_review: "monthly"
+  
+  tools:
+    staticAnalysis:
+      - ruff
+      - mypy
+      - bandit
+      - semgrep
+      - sonarqube
+    security:
+      - safety
+      - pip-audit
+      - snyk
+      - trivy
+      - dependabot
+    performance:
+      - pytest-benchmark
+      - memory-profiler
+      - line-profiler
+    quality:
+      - coverage
+      - complexity
+      - duplication
+
+execution:
+  strategy: "autonomous"
+  maxConcurrentTasks: 1
+  priorityCategories:
+    - security_vulnerabilities
+    - compliance_gaps
+    - performance_bottlenecks
+    - technical_debt_hotspots
+    - documentation_gaps
+    - test_coverage_improvements
+  
+  testRequirements:
+    minCoverage: 85
+    performanceRegression: 3  # 3% max regression
+    securityScans: true
+    linting: true
+    typeChecking: true
+  
+  rollbackTriggers:
+    - testFailure
+    - buildFailure
+    - securityViolation
+    - performanceRegression
+    - coverageDecrease
+
+  branchStrategy:
+    prefix: "auto-value"
+    format: "${prefix}/${item.id}-${item.slug}"
+    deleteAfterMerge: true
+
+valueTracking:
+  metrics:
+    - cycleTime
+    - valueDelivered
+    - technicalDebtReduction
+    - securityPostureImprovement
+    - performanceGains
+    - codeQualityIncrease
+    - testCoverageIncrease
+    - complianceScore
+  
+  reporting:
+    format: "markdown"
+    location: "BACKLOG.md"
+    updateFrequency: "continuous"
+    includeMetrics: true
+    includeProjections: true
+
+learning:
+  adaptiveWeights: true
+  feedbackLoop: true
+  patternRecognition: true
+  velocityOptimization: true
+  
+  trackingFields:
+    - estimationAccuracy
+    - valuePredictionAccuracy
+    - falsePositiveRate
+    - adaptationCycles
+    - humanInterventionRate
+
+automation:
+  prGeneration:
+    enabled: true
+    templatePath: ".terragon/pr-template.md"
+    autoAssignReviewers: true
+    useCodeowners: true
+    labelStrategy: "auto"
+  
+  notifications:
+    enabled: true
+    channels:
+      - github_pr_comments
+      - commit_messages
+    quietHours: "22:00-06:00"
+
+compliance:
+  frameworks:
+    - "NIST_SP_800_208"
+    - "ETSI_TR_103_619"
+    - "IEC_62443"
+    - "OWASP_IoT_Top_10"
+  
+  deadlines:
+    pqc_compliance: "2035-01-01"
+    security_audit: "quarterly"
+    dependency_updates: "monthly"
+
+housekeeping:
+  enabled: true
+  tasks:
+    - dependency_updates
+    - documentation_refresh
+    - test_coverage_improvements
+    - performance_optimizations
+    - code_cleanup
+    - infrastructure_updates
+  
+  triggers:
+    - no_high_value_items
+    - idle_time_threshold: "24h"
+    - maintenance_window: "weekly"
