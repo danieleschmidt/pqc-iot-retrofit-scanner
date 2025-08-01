@@ -1,0 +1,128 @@
+# Terragon Autonomous SDLC Configuration
+# Repository: pqc-iot-retrofit-scanner
+# Maturity Level: Maturing (65%)
+# Generated: 2025-08-01
+
+repository:
+  name: pqc-iot-retrofit-scanner
+  type: python_security_tool
+  maturity_level: maturing
+  maturity_score: 65
+  primary_language: python
+  frameworks: [click, cryptography, capstone, lief]
+  domain: post_quantum_cryptography
+
+scoring:
+  weights:
+    maturing:
+      wsjf: 0.5
+      ice: 0.2
+      technical_debt: 0.2
+      security: 0.1
+    security_multipliers:
+      vulnerability: 2.5
+      compliance: 2.0
+      crypto_weakness: 3.0
+    domain_boosts:
+      security_tool: 1.3
+      crypto_implementation: 1.5
+      iot_firmware: 1.2
+
+  thresholds:
+    min_score: 25.0
+    max_risk: 0.7
+    security_boost: 2.5
+    compliance_boost: 2.0
+    crypto_boost: 3.0
+
+discovery:
+  sources:
+    enabled:
+      - git_history
+      - static_analysis
+      - security_scans
+      - dependency_audit
+      - performance_monitoring
+      - code_quality_metrics
+      - compliance_tracking
+    
+  patterns:
+    security_keywords: [TODO, FIXME, HACK, TEMPORARY, SECURITY, CRYPTO, VULNERABLE]
+    debt_indicators: [REFACTOR, CLEANUP, OPTIMIZE, DEPRECATED]
+    performance_flags: [SLOW, BOTTLENECK, PERFORMANCE, MEMORY_LEAK]
+
+  tools:
+    static_analysis:
+      - ruff
+      - mypy
+      - bandit
+      - semgrep
+    security:
+      - safety
+      - pip-audit
+      - trivy
+      - snyk
+    performance:
+      - py-spy
+      - memory_profiler
+      - line_profiler
+
+execution:
+  validation:
+    required_tests: true
+    min_coverage: 80
+    linting_required: true
+    security_scan_required: true
+    type_checking_required: true
+  
+  safety:
+    max_concurrent_tasks: 1
+    rollback_triggers:
+      - test_failure
+      - lint_failure
+      - security_violation
+      - coverage_drop
+    
+  git:
+    branch_pattern: "auto-value/{item_id}-{slug}"
+    pr_template: ".terragon/pr_template.md"
+    commit_message_prefix: "[AUTO-VALUE]"
+
+learning:
+  feedback_loop: true
+  track_execution_time: true
+  track_value_delivered: true
+  adjust_scoring_weights: true
+  store_patterns: true
+
+notifications:
+  channels:
+    - github_pr
+    - commit_status
+  
+  conditions:
+    high_value_item: score > 75
+    security_critical: category == "security"
+    failed_execution: status == "failed"
+
+# Repository-specific value opportunities
+value_opportunities:
+  immediate:
+    - upgrade_dependencies
+    - add_missing_type_hints
+    - improve_test_coverage
+    - security_hardening
+  
+  strategic:
+    - performance_optimization
+    - architecture_modernization
+    - compliance_automation
+    - observability_enhancement
+
+# Continuous improvement targets
+improvement_targets:
+  maturity_score: 85
+  test_coverage: 95
+  security_score: 90
+  performance_score: 80
+  documentation_completeness: 90
