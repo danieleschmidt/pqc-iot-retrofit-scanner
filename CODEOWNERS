@@ -1,0 +1,53 @@
+# Code Owners for PQC IoT Retrofit Scanner
+# 
+# This file defines individuals or teams that are responsible for code in this repository.
+# Code owners are automatically requested for review when someone opens a pull request 
+# that modifies code that they own.
+#
+# Order is important. The last matching pattern has the most precedence.
+
+# Default owners for all files
+* @danieleschmidt
+
+# Documentation
+*.md @danieleschmidt
+docs/ @danieleschmidt
+
+# Core cryptographic implementations
+src/pqc_iot_retrofit/ @danieleschmidt
+scripts/ @danieleschmidt
+
+# Security-critical components
+security/ @danieleschmidt
+SECURITY.md @danieleschmidt
+THREAT_MODEL.md @danieleschmidt
+
+# Build and deployment configuration
+Dockerfile @danieleschmidt
+docker-compose.yml @danieleschmidt
+Makefile @danieleschmidt
+pyproject.toml @danieleschmidt
+
+# Testing infrastructure
+tests/ @danieleschmidt
+pytest.ini @danieleschmidt
+
+# Monitoring and observability
+monitoring/ @danieleschmidt
+
+# GitHub Actions and workflows (when created)
+.github/ @danieleschmidt
+
+# Dependencies and lock files
+requirements*.lock @danieleschmidt
+requirements*.txt @danieleschmidt
+
+# Project governance
+PROJECT_CHARTER.md @danieleschmidt
+CODE_OF_CONDUCT.md @danieleschmidt
+CONTRIBUTING.md @danieleschmidt
+LICENSE @danieleschmidt
+
+# Architecture decisions
+docs/adr/ @danieleschmidt
+docs/ARCHITECTURE.md @danieleschmidt

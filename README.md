@@ -32,6 +32,76 @@
 
 ### Installation
 
+```bash
+# Install CLI tool
+pip install pqc-iot-retrofit-scanner
+
+# Install with firmware analysis tools
+pip install pqc-iot-retrofit-scanner[analysis]
+
+# Verify installation
+pqc-iot scan --version
+```
+
+### Basic Firmware Scan
+
+```bash
+# Scan single firmware image
+pqc-iot scan firmware.bin --arch cortex-m4 --output report.json
+
+# Scan with patch generation
+pqc-iot scan firmware.bin \
+  --arch cortex-m4 \
+  --generate-patches \
+  --patch-dir patches/
+
+# Batch scan IoT fleet
+pqc-iot scan-fleet \
+  --manifest fleet_manifest.json \
+  --parallel 8 \
+  --risk-threshold high
+```
+
+### Python API Usage
+
+```python
+from pqc_iot_retrofit import FirmwareScanner, PQCPatcher
+
+# Initialize scanner
+scanner = FirmwareScanner(
+    architecture="cortex-m4",
+    memory_constraints={"flash": 512*1024, "ram": 64*1024}
+)
+
+# Scan firmware
+vulnerabilities = scanner.scan_firmware(
+    firmware_path="smart_meter_v2.3.bin",
+    base_address=0x08000000
+)
+
+print(f"Found {len(vulnerabilities)} quantum-vulnerable crypto implementations")
+
+# Generate PQC patches
+patcher = PQCPatcher(
+    target_device="STM32L4",
+    optimization_level="size"  # Optimize for code size
+)
+
+for vuln in vulnerabilities:
+    if vuln.algorithm == "RSA-2048":
+        patch = patcher.create_dilithium_patch(
+            vuln,
+            security_level=2,  # NIST Level 2
+            stack_size=vuln.available_stack
+        )
+    elif vuln.algorithm in ["ECDH-P256", "ECDSA-P256"]:
+        patch = patcher.create_kyber_patch(
+            vuln,
+            security_level=1,
+            shared_memory=True  # Share memory between Kyber operations
+        )
+    
+    patch.save(f"patches/{vuln.function_name}.patch")
 ```
 
 ### Risk Assessment Dashboard
@@ -411,6 +481,42 @@ migration_phases:
     sunset_date: "2027-01-01"
 ```
 
+## 🛠️ Development Infrastructure
+
+This project implements a comprehensive Software Development Lifecycle (SDLC) with enterprise-grade tooling:
+
+### Development Environment
+- **Containerized Development**: Full devcontainer support with Docker and docker-compose
+- **Automated Testing**: Comprehensive test suite with unit, integration, e2e, and security tests
+- **Code Quality**: ESLint, Prettier, and pre-commit hooks for consistent code quality
+- **Performance Benchmarking**: Hardware-in-loop testing and benchmarking framework
+
+### CI/CD & Automation
+- **GitHub Actions Templates**: Ready-to-deploy CI/CD workflows in `docs/workflows/examples/`
+- **Security Scanning**: Automated dependency scanning and vulnerability assessment
+- **Metrics Collection**: Comprehensive project health and performance metrics
+- **Automated Deployments**: OTA update generation and deployment automation
+
+### Monitoring & Observability
+- **Health Checks**: Automated system health monitoring with `monitoring/health_check.py`
+- **Performance Metrics**: Prometheus-compatible metrics collection
+- **Structured Logging**: Centralized logging with correlation IDs
+- **Alerting**: Configurable alerting for operational anomalies
+
+### Documentation & Governance
+- **Architecture Decision Records**: Documented decisions in `docs/adr/`
+- **Security Documentation**: Threat modeling and security checklists
+- **Compliance**: NIST PQC and IoT security standard compliance tracking
+- **Project Charter**: Clear scope, success criteria, and stakeholder alignment
+
+### Repository Management
+- **Branch Protection**: Automated review requirements and merge policies
+- **Code Owners**: Automatic reviewer assignment via `CODEOWNERS`
+- **Issue Templates**: Standardized bug reports and feature requests
+- **Security Policy**: Clear vulnerability reporting and response procedures
+
+For detailed setup instructions, see [docs/SETUP_REQUIRED.md](docs/SETUP_REQUIRED.md).
+
 ## 📚 Documentation
 
 Full documentation: [https://pqc-iot-retrofit.readthedocs.io](https://pqc-iot-retrofit.readthedocs.io)
@@ -420,6 +526,8 @@ Full documentation: [https://pqc-iot-retrofit.readthedocs.io](https://pqc-iot-re
 - [Embedded Crypto Best Practices](docs/guides/embedded_crypto.md)
 - [OTA Update Security](docs/guides/ota_security.md)
 - [Compliance Roadmap](docs/guides/compliance.md)
+- [Development Setup](docs/DEVELOPMENT.md)
+- [Architecture Overview](docs/ARCHITECTURE.md)
 
 ## 🤝 Contributing
 
@@ -456,77 +564,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## ⚠️ Security Notice
 
-This tool identifies and patches cryptographic vulnerabilities. Always test patches thoroughly in isolated environments before production deployment. The authors are not responsible for any system failures or security breaches resulting from improper use.bash
-# Install CLI tool
-pip install pqc-iot-retrofit-scanner
-
-# Install with firmware analysis tools
-pip install pqc-iot-retrofit-scanner[analysis]
-
-# Verify installation
-pqc-iot scan --version
-```
-
-### Basic Firmware Scan
-
-```bash
-# Scan single firmware image
-pqc-iot scan firmware.bin --arch cortex-m4 --output report.json
-
-# Scan with patch generation
-pqc-iot scan firmware.bin \
-  --arch cortex-m4 \
-  --generate-patches \
-  --patch-dir patches/
-
-# Batch scan IoT fleet
-pqc-iot scan-fleet \
-  --manifest fleet_manifest.json \
-  --parallel 8 \
-  --risk-threshold high
-```
-
-### Python API Usage
-
-```python
-from pqc_iot_retrofit import FirmwareScanner, PQCPatcher
-
-# Initialize scanner
-scanner = FirmwareScanner(
-    architecture="cortex-m4",
-    memory_constraints={"flash": 512*1024, "ram": 64*1024}
-)
-
-# Scan firmware
-vulnerabilities = scanner.scan_firmware(
-    firmware_path="smart_meter_v2.3.bin",
-    base_address=0x08000000
-)
-
-print(f"Found {len(vulnerabilities)} quantum-vulnerable crypto implementations")
-
-# Generate PQC patches
-patcher = PQCPatcher(
-    target_device="STM32L4",
-    optimization_level="size"  # Optimize for code size
-)
-
-for vuln in vulnerabilities:
-    if vuln.algorithm == "RSA-2048":
-        patch = patcher.create_dilithium_patch(
-            vuln,
-            security_level=2,  # NIST Level 2
-            stack_size=vuln.available_stack
-        )
-    elif vuln.algorithm in ["ECDH-P256", "ECDSA-P256"]:
-        patch = patcher.create_kyber_patch(
-            vuln,
-            security_level=1,
-            shared_memory=True  # Share memory between Kyber operations
-        )
-    
-    patch.save(f"patches/{vuln.function_name}.patch")
-```
+This tool identifies and patches cryptographic vulnerabilities. Always test patches thoroughly in isolated environments before production deployment. The authors are not responsible for any system failures or security breaches resulting from improper use.
 
 ## 🏗️ Architecture
 
