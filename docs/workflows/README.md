@@ -1,6 +1,8 @@
-# GitHub Actions Workflows
+# GitHub Workflows Documentation and Templates
 
-This directory contains documentation for recommended GitHub Actions workflows. Since this tool cannot create workflows directly in `.github/workflows/`, this documentation provides templates that you can implement manually.
+This directory contains comprehensive CI/CD workflow documentation and templates for the PQC IoT Retrofit Scanner project.
+
+⚠️ **Important**: Due to GitHub App permission limitations, workflow files cannot be created automatically. Repository maintainers must manually create these workflows in the `.github/workflows/` directory using the templates provided below.
 
 ## Core Workflows
 
