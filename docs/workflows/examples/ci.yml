@@ -1,0 +1,315 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  # ==========================================
+  # Code Quality and Linting
+  # ==========================================
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev,analysis]"
+    
+    - name: Code formatting check
+      run: black --check --diff src/ tests/
+    
+    - name: Import sorting check
+      run: isort --check-only --diff src/ tests/
+    
+    - name: Linting
+      run: ruff check src/ tests/
+    
+    - name: Type checking
+      run: mypy src/
+    
+    - name: Documentation style
+      run: pydocstyle src/ --convention=google
+    
+    - name: Security linting
+      run: bandit -r src/ -f json -o bandit-report.json
+      continue-on-error: true
+    
+    - name: Upload security report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+        retention-days: 30
+
+  # ==========================================
+  # Testing
+  # ==========================================
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev,analysis]"
+    
+    - name: Run unit tests
+      run: |
+        pytest tests/unit/ -v \
+          --cov=src \
+          --cov-report=xml \
+          --cov-report=html \
+          --junitxml=test-results.xml
+    
+    - name: Run integration tests
+      run: |
+        pytest tests/integration/ -v \
+          --cov=src \
+          --cov-append \
+          --cov-report=xml \
+          --cov-report=html
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ matrix.python-version }}
+        path: |
+          test-results.xml
+          htmlcov/
+        retention-days: 30
+
+  # ==========================================
+  # Security Scanning
+  # ==========================================
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+        pip install safety pip-audit
+    
+    - name: Run safety check
+      run: |
+        safety check --json --output safety-report.json
+      continue-on-error: true
+    
+    - name: Run pip-audit
+      run: |
+        pip-audit --format=json --output=pip-audit-report.json
+      continue-on-error: true
+    
+    - name: Secret scanning
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: main
+        head: HEAD
+        extra_args: --debug --only-verified
+
+  # ==========================================
+  # Performance Testing
+  # ==========================================
+  performance:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev,analysis]"
+        pip install pytest-benchmark
+    
+    - name: Run performance benchmarks
+      run: |
+        pytest tests/benchmarks/ \
+          --benchmark-only \
+          --benchmark-json=benchmark-results.json
+    
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-results
+        path: benchmark-results.json
+        retention-days: 30
+
+  # ==========================================
+  # Docker Build and Test
+  # ==========================================
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build production image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        target: production
+        tags: pqc-iot-retrofit-scanner:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        outputs: type=docker,dest=/tmp/image.tar
+        build-args: |
+          BUILD_DATE=${{ github.event.head_commit.timestamp }}
+          VCS_REF=${{ github.sha }}
+          VERSION=pr-${{ github.event.number }}
+    
+    - name: Load and test Docker image
+      run: |
+        docker load --input /tmp/image.tar
+        docker run --rm pqc-iot-retrofit-scanner:test --version
+        docker run --rm pqc-iot-retrofit-scanner:test --help
+    
+    - name: Scan Docker image for vulnerabilities
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'pqc-iot-retrofit-scanner:test'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # ==========================================
+  # End-to-End Testing
+  # ==========================================
+  e2e:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: [quality, test, docker]
+    if: github.event.pull_request.draft == false
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev,analysis]"
+    
+    - name: Run E2E tests
+      run: |
+        pytest tests/e2e/ -v \
+          --tb=short \
+          --timeout=300
+    
+    - name: Upload E2E test artifacts
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: e2e-artifacts
+        path: |
+          logs/
+          test-outputs/
+        retention-days: 7
+
+  # ==========================================
+  # Build Summary
+  # ==========================================
+  build-summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: [quality, test, security, performance, docker, e2e]
+    if: always() && github.event.pull_request.draft == false
+    
+    steps:
+    - name: Generate build summary
+      run: |
+        echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Code Quality | ${{ needs.quality.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Tests | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Security | ${{ needs.security.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Performance | ${{ needs.performance.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Docker | ${{ needs.docker.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| E2E Tests | ${{ needs.e2e.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Build completed at:** $(date)" >> $GITHUB_STEP_SUMMARY
