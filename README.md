@@ -544,7 +544,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 ```bibtex
 @article{pqc_iot_retrofit_scanner,
   title={Automated Post-Quantum Cryptography Retrofitting for IoT Devices},
-  author={Your Name},
+  author={Daniel Schmidt},
   journal={IEEE Internet of Things Journal},
   year={2025},
   doi={10.1109/JIOT.2025.XXXXXX}
