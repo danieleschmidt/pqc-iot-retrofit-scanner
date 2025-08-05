@@ -1,25 +1,57 @@
-"""CLI interface for PQC IoT Retrofit Scanner."""
+"""CLI interface for PQC IoT Retrofit Scanner with Generation 3 optimizations."""
 
 import json
 import click
+import time
 from pathlib import Path
 from rich.console import Console
 from rich.table import Table
-from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
 from rich.tree import Tree
 from rich.panel import Panel
 
 from .scanner import FirmwareScanner, RiskLevel
 from .patcher import PQCPatcher, OptimizationLevel
 
+# Generation 3 optimizations
+from .performance import performance_optimizer
+from .concurrency import initialize_pools, shutdown_pools, firmware_scanner_pool
+from .monitoring import metrics_collector
+
 console = Console()
+
+# Global flag for optimizations
+_optimizations_enabled = True
 
 
 @click.group()
 @click.version_option()
-def main():
-    """PQC IoT Retrofit Scanner CLI - Detect and patch quantum-vulnerable cryptography in IoT firmware."""
-    pass
+@click.option("--enable-gen3", is_flag=True, default=True, help="Enable Generation 3 optimizations")
+@click.option("--max-workers", type=int, default=None, help="Maximum worker threads")
+def main(enable_gen3, max_workers):
+    """PQC IoT Retrofit Scanner CLI - Detect and patch quantum-vulnerable cryptography in IoT firmware.
+    
+    🚀 Generation 3 Features:
+    ✨ Intelligent caching for faster repeated scans
+    ⚡ Concurrent processing with auto-scaling
+    📊 Real-time performance monitoring
+    """
+    
+    global _optimizations_enabled
+    _optimizations_enabled = enable_gen3
+    
+    if enable_gen3:
+        console.print("🚀 [bold cyan]Generation 3 optimizations enabled[/bold cyan]")
+        
+        # Initialize worker pools
+        try:
+            initialize_pools(
+                scanner_class=FirmwareScanner,
+                scanner_workers=max_workers
+            )
+        except Exception as e:
+            console.print(f"[yellow]Warning: Could not initialize worker pools: {e}[/yellow]")
+            _optimizations_enabled = False
 
 
 @main.command()
@@ -49,39 +81,71 @@ def scan(firmware_path, arch, output, base_address, flash_size, ram_size, verbos
     if ram_size:
         memory_constraints['ram'] = ram_size
     
-    console.print(Panel(f"""[bold cyan]PQC IoT Retrofit Scanner[/bold cyan]
+    gen3_status = "Enabled" if _optimizations_enabled else "Disabled"
+    console.print(Panel(f"""[bold cyan]PQC IoT Retrofit Scanner - Generation 3[/bold cyan]
     
 🎯 [bold]Target:[/bold] {firmware_path}
 🏗️  [bold]Architecture:[/bold] {arch}
 📍 [bold]Base Address:[/bold] {base_address}
-💾 [bold]Memory Constraints:[/bold] {memory_constraints or 'Auto-detected'}""", 
+💾 [bold]Memory Constraints:[/bold] {memory_constraints or 'Auto-detected'}
+⚡ [bold]Gen3 Optimizations:[/bold] {gen3_status}""", 
                        title="Scan Configuration"))
     
+    start_time = time.time()
+    
     try:
-        # Initialize scanner
+        # Initialize scanner with potential optimizations
         scanner = FirmwareScanner(arch, memory_constraints)
+        
+        # Apply Generation 3 optimizations if enabled
+        if _optimizations_enabled and performance_optimizer:
+            original_scan = scanner.scan_firmware
+            scanner.scan_firmware = performance_optimizer.optimize_firmware_scanning(original_scan)
+            
+            if verbose:
+                console.print("🧠 [blue]Applied intelligent caching optimizations[/blue]")
         
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TaskProgressColumn(),
             console=console
         ) as progress:
             
             # Scanning phases
-            scan_task = progress.add_task("🔍 Analyzing firmware binary...", total=None)
-            vulnerabilities = scanner.scan_firmware(str(firmware_path), base_addr)
-            progress.update(scan_task, description="✅ Firmware analysis complete")
+            scan_task = progress.add_task("🔍 Analyzing firmware binary...", total=100)
             
-        # Generate detailed report
-        report = scanner.generate_report()
+            # Simulate progressive scanning
+            progress.update(scan_task, advance=20, description="📖 Loading firmware...")
+            vulnerabilities = scanner.scan_firmware(str(firmware_path), base_addr)
+            progress.update(scan_task, advance=60, description="🔍 Pattern matching...")
+            
+            # Generate detailed report
+            report = scanner.generate_report()
+            progress.update(scan_task, advance=20, description="✅ Analysis complete")
         
-        # Display results
-        _display_scan_results(report, vulnerabilities, verbose)
+        scan_duration = time.time() - start_time
+        
+        # Display results with performance info
+        _display_scan_results(report, vulnerabilities, verbose, scan_duration)
+        
+        # Display Generation 3 metrics if enabled
+        if _optimizations_enabled and verbose:
+            _display_gen3_metrics()
         
         # Save report if requested
         if output:
+            # Enhance report with Generation 3 metadata
+            enhanced_report = report.copy()
+            enhanced_report['scan_metadata'] = {
+                'generation_3_enabled': _optimizations_enabled,
+                'scan_duration': scan_duration,
+                'timestamp': time.time()
+            }
+            
             output_path = Path(output)
-            output_path.write_text(json.dumps(report, indent=2))
+            output_path.write_text(json.dumps(enhanced_report, indent=2))
             console.print(f"\n[green]📄 Report saved to {output}[/green]")
         
     except Exception as e:
@@ -263,7 +327,7 @@ def analyze(firmware_path, arch, device, output_dir, generate_patches, security_
         console.print(f"[red]❌ Analysis failed: {e}[/red]")
 
 
-def _display_scan_results(report, vulnerabilities, verbose=False):
+def _display_scan_results(report, vulnerabilities, verbose=False, scan_duration=None):
     """Display scan results in a formatted table."""
     
     summary = report['scan_summary']
@@ -320,6 +384,10 @@ def _display_scan_results(report, vulnerabilities, verbose=False):
         console.print("\n")
         console.print(vuln_table)
     
+    # Performance info if available
+    if scan_duration is not None:
+        console.print(f"\n⏱️  [bold]Scan Duration:[/bold] {scan_duration:.2f} seconds")
+    
     # Recommendations
     if report.get('recommendations'):
         console.print("\n[bold yellow]🔍 Recommendations:[/bold yellow]")
@@ -359,6 +427,62 @@ def _display_patch_summary(patches_dir):
     
     console.print(patch_table)
     console.print(f"\n[dim]💡 Use the installation scripts (.sh files) to apply patches[/dim]")
+
+
+def _display_gen3_metrics():
+    """Display Generation 3 performance metrics."""
+    
+    console.print("\n⚡ [bold cyan]Generation 3 Performance Metrics:[/bold cyan]")
+    
+    # Cache performance
+    if performance_optimizer and performance_optimizer.cache:
+        cache_stats = performance_optimizer.cache.get_stats()
+        
+        cache_table = Table(title="🧠 Cache Performance")
+        cache_table.add_column("Layer", style="cyan")
+        cache_table.add_column("Hit Rate", style="green")
+        cache_table.add_column("Size", style="yellow")
+        
+        cache_table.add_row("L1 (Memory)", f"{cache_stats['l1_hit_rate']:.1%}", str(cache_stats['l1_size']))
+        cache_table.add_row("L2 (Disk)", f"{cache_stats['l2_hit_rate']:.1%}", str(cache_stats['l2_size']))
+        
+        console.print(cache_table)
+    
+    # Worker pool performance
+    if firmware_scanner_pool:
+        pool_stats = firmware_scanner_pool.get_stats()
+        
+        pool_table = Table(title="⚙️ Worker Pool Performance")
+        pool_table.add_column("Metric", style="cyan")
+        pool_table.add_column("Value", style="magenta")
+        
+        pool_table.add_row("Workers", f"{pool_stats['workers_active']}/{pool_stats['worker_count']}")
+        pool_table.add_row("Items Processed", str(pool_stats['items_processed']))
+        pool_table.add_row("Success Rate", f"{pool_stats['success_rate']:.1%}")
+        
+        console.print(pool_table)
+
+
+@main.command()
+def metrics():
+    """Display Generation 3 performance metrics."""
+    _display_gen3_metrics()
+
+
+# Cleanup function for graceful shutdown
+def cleanup():
+    """Clean up Generation 3 resources on exit."""
+    if _optimizations_enabled:
+        try:
+            shutdown_pools()
+            console.print("🔄 [dim]Cleaned up Generation 3 resources[/dim]")
+        except Exception:
+            pass  # Ignore cleanup errors
+
+
+# Register cleanup handler
+import atexit
+atexit.register(cleanup)
 
 
 if __name__ == "__main__":
