@@ -1,0 +1,126 @@
+{
+  "scan_summary": {
+    "architecture": "cortex-m4",
+    "total_vulnerabilities": 7,
+    "risk_distribution": {
+      "critical": 3,
+      "high": 2,
+      "medium": 2,
+      "low": 0
+    },
+    "algorithm_distribution": {
+      "RSA-1024": 0,
+      "RSA-2048": 3,
+      "RSA-4096": 0,
+      "ECDSA-P256": 1,
+      "ECDSA-P384": 0,
+      "ECDH-P256": 1,
+      "ECDH-P384": 0,
+      "DH-1024": 0,
+      "DH-2048": 2
+    },
+    "memory_constraints": {}
+  },
+  "vulnerabilities": [
+    {
+      "algorithm": "RSA-2048",
+      "address": "0x00000000",
+      "function_name": "crypto_string_0x00000000",
+      "risk_level": "critical",
+      "key_size": null,
+      "description": "Reference to RSA algorithm at 0x00000000",
+      "mitigation": "Replace with Dilithium3 (NIST Level 3)",
+      "memory_impact": {
+        "stack_usage": 32,
+        "available_stack": 32768
+      }
+    },
+    {
+      "algorithm": "RSA-2048",
+      "address": "0x00000004",
+      "function_name": "crypto_string_0x00000004",
+      "risk_level": "critical",
+      "key_size": null,
+      "description": "Reference to RSA algorithm at 0x00000004",
+      "mitigation": "Replace with Dilithium3 (NIST Level 3)",
+      "memory_impact": {
+        "stack_usage": 32,
+        "available_stack": 32768
+      }
+    },
+    {
+      "algorithm": "RSA-2048",
+      "address": "0x00000090",
+      "function_name": "crypto_string_0x00000090",
+      "risk_level": "critical",
+      "key_size": null,
+      "description": "Reference to RSA algorithm at 0x00000090",
+      "mitigation": "Replace with Dilithium3 (NIST Level 3)",
+      "memory_impact": {
+        "stack_usage": 32,
+        "available_stack": 32768
+      }
+    },
+    {
+      "algorithm": "ECDSA-P256",
+      "address": "0x0000000d",
+      "function_name": "crypto_string_0x0000000d",
+      "risk_level": "high",
+      "key_size": null,
+      "description": "Reference to ECDSA algorithm at 0x0000000d",
+      "mitigation": "Replace with Dilithium2 for signatures",
+      "memory_impact": {
+        "stack_usage": 32,
+        "available_stack": 32768
+      }
+    },
+    {
+      "algorithm": "ECDH-P256",
+      "address": "0x000000b7",
+      "function_name": "crypto_string_0x000000b7",
+      "risk_level": "high",
+      "key_size": null,
+      "description": "Reference to ECDH algorithm at 0x000000b7",
+      "mitigation": "Replace with Kyber512 key encapsulation",
+      "memory_impact": {
+        "stack_usage": 32,
+        "available_stack": 32768
+      }
+    },
+    {
+      "algorithm": "DH-2048",
+      "address": "0x000000b9",
+      "function_name": "crypto_string_0x000000b9",
+      "risk_level": "medium",
+      "key_size": null,
+      "description": "Reference to DH algorithm at 0x000000b9",
+      "mitigation": "Replace with Kyber768 key encapsulation",
+      "memory_impact": {
+        "stack_usage": 32,
+        "available_stack": 32768
+      }
+    },
+    {
+      "algorithm": "DH-2048",
+      "address": "0x000000d8",
+      "function_name": "crypto_string_0x000000d8",
+      "risk_level": "medium",
+      "key_size": null,
+      "description": "Reference to Diffie-Hellman algorithm at 0x000000d8",
+      "mitigation": "Replace with Kyber768 key encapsulation",
+      "memory_impact": {
+        "stack_usage": 32,
+        "available_stack": 32768
+      }
+    }
+  ],
+  "recommendations": [
+    "URGENT: Critical quantum vulnerabilities detected. Immediate PQC migration recommended.",
+    "Multiple cryptographic algorithms detected. Consider standardizing on a single PQC suite (Dilithium + Kyber)."
+  ],
+  "scan_metadata": {
+    "generation_3_enabled": false,
+    "scan_duration": 0.014966487884521484,
+    "timestamp": 1754491112.358204
+  }
+}

@@ -42,16 +42,8 @@ def main(enable_gen3, max_workers):
     
     if enable_gen3:
         console.print("🚀 [bold cyan]Generation 3 optimizations enabled[/bold cyan]")
-        
-        # Initialize worker pools
-        try:
-            initialize_pools(
-                scanner_class=FirmwareScanner,
-                scanner_workers=max_workers
-            )
-        except Exception as e:
-            console.print(f"[yellow]Warning: Could not initialize worker pools: {e}[/yellow]")
-            _optimizations_enabled = False
+        console.print("[dim]Worker pools will be configured per scan operation[/dim]")
+        # Keep _optimizations_enabled = True
 
 
 @main.command()
@@ -81,14 +73,14 @@ def scan(firmware_path, arch, output, base_address, flash_size, ram_size, verbos
     if ram_size:
         memory_constraints['ram'] = ram_size
     
-    gen3_status = "Enabled" if _optimizations_enabled else "Disabled"
+    initial_gen3_status = "Enabled" if _optimizations_enabled else "Disabled"
     console.print(Panel(f"""[bold cyan]PQC IoT Retrofit Scanner - Generation 3[/bold cyan]
     
 🎯 [bold]Target:[/bold] {firmware_path}
 🏗️  [bold]Architecture:[/bold] {arch}
 📍 [bold]Base Address:[/bold] {base_address}
 💾 [bold]Memory Constraints:[/bold] {memory_constraints or 'Auto-detected'}
-⚡ [bold]Gen3 Optimizations:[/bold] {gen3_status}""", 
+⚡ [bold]Gen3 Optimizations:[/bold] {initial_gen3_status}""", 
                        title="Scan Configuration"))
     
     start_time = time.time()
@@ -98,12 +90,37 @@ def scan(firmware_path, arch, output, base_address, flash_size, ram_size, verbos
         scanner = FirmwareScanner(arch, memory_constraints)
         
         # Apply Generation 3 optimizations if enabled
-        if _optimizations_enabled and performance_optimizer:
-            original_scan = scanner.scan_firmware
-            scanner.scan_firmware = performance_optimizer.optimize_firmware_scanning(original_scan)
+        gen3_active = False
+        if _optimizations_enabled:
+            # Initialize architecture-specific worker pools
+            try:
+                initialize_pools(
+                    scanner_class=FirmwareScanner,
+                    scanner_kwargs={'architecture': arch, 'memory_constraints': memory_constraints},
+                    scanner_workers=4
+                )
+                if verbose:
+                    console.print("⚡ [blue]Initialized concurrent worker pools[/blue]")
+                gen3_active = True
+            except Exception as e:
+                if verbose:
+                    console.print(f"[yellow]Worker pool initialization failed: {e}[/yellow]")
             
-            if verbose:
-                console.print("🧠 [blue]Applied intelligent caching optimizations[/blue]")
+            # Apply performance optimizations
+            try:
+                if performance_optimizer and hasattr(performance_optimizer, 'optimize_firmware_scanning'):
+                    original_scan = scanner.scan_firmware
+                    scanner.scan_firmware = performance_optimizer.optimize_firmware_scanning(scanner.scan_firmware)
+                    
+                    if verbose:
+                        console.print("🧠 [blue]Applied intelligent caching optimizations[/blue]")
+                    gen3_active = True
+            except Exception as e:
+                if verbose:
+                    console.print(f"[yellow]Performance optimization failed: {e}[/yellow]")
+        
+        # Update gen3 status for display
+        gen3_status = "Enabled" if gen3_active else "Disabled"
         
         with Progress(
             SpinnerColumn(),
