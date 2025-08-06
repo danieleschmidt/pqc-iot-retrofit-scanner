@@ -600,13 +600,15 @@ async_work_manager = AsyncWorkManager()
 
 
 def initialize_pools(scanner_class=None, generator_class=None, 
-                    scanner_workers: int = None, generator_workers: int = None):
+                    scanner_workers: int = None, generator_workers: int = None,
+                    scanner_kwargs: Dict[str, Any] = None, generator_kwargs: Dict[str, Any] = None):
     """Initialize global worker pools."""
     global firmware_scanner_pool, pqc_generator_pool
     
     if scanner_class:
         firmware_scanner_pool = FirmwareScannerPool(
             scanner_class=scanner_class,
+            scanner_kwargs=scanner_kwargs or {},
             worker_count=scanner_workers
         )
         logging.info("Initialized firmware scanner pool")

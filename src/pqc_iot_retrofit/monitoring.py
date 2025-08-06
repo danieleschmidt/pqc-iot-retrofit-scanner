@@ -132,8 +132,20 @@ class MetricsCollector:
     
     def record_operation_end(self, operation: str, operation_id: str, success: bool = True):
         """Record the end of an operation."""
-        # Calculate duration (simplified - in real implementation would track by ID)
-        duration = time.time() - float(operation_id.split('_')[1])
+        try:
+            # Calculate duration (simplified - in real implementation would track by ID)
+            parts = operation_id.split('_')
+            if len(parts) >= 2:
+                # Extract timestamp from operation_id - handle potential malformed IDs
+                timestamp_str = parts[-2] if len(parts) > 2 else parts[1]
+                start_time = float(timestamp_str)
+                duration = time.time() - start_time
+            else:
+                # Fallback for malformed operation IDs
+                duration = 0.0
+        except (ValueError, IndexError):
+            # Handle parsing errors gracefully
+            duration = 0.0
         
         with self.lock:
             self.operation_times[operation].append(duration)

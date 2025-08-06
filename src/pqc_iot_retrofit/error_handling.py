@@ -371,7 +371,7 @@ class InputValidator:
         """Validate target architecture."""
         valid_architectures = [
             'cortex-m0', 'cortex-m3', 'cortex-m4', 'cortex-m7',
-            'esp32', 'riscv32', 'avr'
+            'esp32', 'esp8266', 'riscv32', 'risc-v', 'avr'
         ]
         
         if not arch:
@@ -393,22 +393,23 @@ class InputValidator:
             raise ValidationError("Memory constraints must be a dictionary", 
                                 field="memory_constraints", value=constraints)
         
-        required_keys = ['flash', 'ram']
-        for key in required_keys:
-            if key not in constraints:
-                raise ValidationError(f"Missing required constraint: {key}",
+        # Allow partial constraints - don't require both flash and ram
+        valid_keys = ['flash', 'ram', 'heap', 'stack']
+        for key, value in constraints.items():
+            if key not in valid_keys:
+                raise ValidationError(f"Unknown constraint key: {key}",
                                     field="memory_constraints", value=constraints)
             
-            if not isinstance(constraints[key], int) or constraints[key] <= 0:
+            if not isinstance(value, int) or value <= 0:
                 raise ValidationError(f"Constraint {key} must be a positive integer",
-                                    field="memory_constraints", value=constraints[key])
+                                    field="memory_constraints", value=value)
         
-        # Sanity checks
-        if constraints['flash'] < 1024:  # Less than 1KB
+        # Sanity checks only if constraints are provided
+        if 'flash' in constraints and constraints['flash'] < 1024:  # Less than 1KB
             raise ValidationError("Flash constraint too small (minimum 1KB)",
                                 field="memory_constraints", value=constraints)
         
-        if constraints['ram'] < 512:  # Less than 512 bytes
+        if 'ram' in constraints and constraints['ram'] < 512:  # Less than 512 bytes
             raise ValidationError("RAM constraint too small (minimum 512 bytes)",
                                 field="memory_constraints", value=constraints)
         

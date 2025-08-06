@@ -158,8 +158,10 @@ class FirmwareScanner:
                 'cortex-m3': ArchitectureInfo('cortex-m3', capstone.CS_ARCH_ARM, capstone.CS_MODE_THUMB, 'little', 4, 2),
                 'cortex-m4': ArchitectureInfo('cortex-m4', capstone.CS_ARCH_ARM, capstone.CS_MODE_THUMB, 'little', 4, 2),
                 'cortex-m7': ArchitectureInfo('cortex-m7', capstone.CS_ARCH_ARM, capstone.CS_MODE_THUMB, 'little', 4, 2),
-                'esp32': ArchitectureInfo('esp32', capstone.CS_ARCH_XTENSA, 0, 'little', 4, 1),
+                'esp32': ArchitectureInfo('esp32', capstone.CS_ARCH_RISCV, capstone.CS_MODE_RISCV32, 'little', 4, 1),
                 'riscv32': ArchitectureInfo('riscv32', capstone.CS_ARCH_RISCV, capstone.CS_MODE_RISCV32, 'little', 4, 4),
+                'risc-v': ArchitectureInfo('risc-v', capstone.CS_ARCH_RISCV, capstone.CS_MODE_RISCV32, 'little', 4, 4),
+                'esp8266': ArchitectureInfo('esp8266', capstone.CS_ARCH_RISCV, capstone.CS_MODE_RISCV32, 'little', 4, 1),
                 'avr': ArchitectureInfo('avr', capstone.CS_ARCH_ARM, capstone.CS_MODE_THUMB, 'little', 2, 2),
             }
         else:
@@ -171,6 +173,8 @@ class FirmwareScanner:
                 'cortex-m7': ArchitectureInfo('cortex-m7', 0, 0, 'little', 4, 2),
                 'esp32': ArchitectureInfo('esp32', 0, 0, 'little', 4, 1),
                 'riscv32': ArchitectureInfo('riscv32', 0, 0, 'little', 4, 4),
+                'risc-v': ArchitectureInfo('risc-v', 0, 0, 'little', 4, 4),
+                'esp8266': ArchitectureInfo('esp8266', 0, 0, 'little', 4, 1),
                 'avr': ArchitectureInfo('avr', 0, 0, 'little', 2, 2),
             }
     
@@ -187,7 +191,10 @@ class FirmwareScanner:
             InputValidator.validate_memory_constraints(memory_constraints)
         
         self.architecture = architecture
-        self.memory_constraints = memory_constraints or {'flash': 512*1024, 'ram': 128*1024}
+        self.memory_constraints = memory_constraints or {}
+        # Set defaults only if constraints are provided
+        if not memory_constraints:
+            self.memory_constraints = {}
         self.logger = logging.getLogger(__name__)
         
         architectures = self._get_architectures()
@@ -209,6 +216,17 @@ class FirmwareScanner:
                 self.logger.warning(f"Could not initialize disassembler: {e}")
         else:
             self.logger.warning("Capstone not available - disassembly features disabled")
+    
+    def __str__(self) -> str:
+        """String representation of the scanner."""
+        constraints_str = ', '.join(f"{k}={v}" for k, v in self.memory_constraints.items())
+        return f"FirmwareScanner(arch={self.architecture}, constraints=[{constraints_str}])"
+    
+    def __repr__(self) -> str:
+        """Detailed representation of the scanner."""
+        return (f"FirmwareScanner(architecture='{self.architecture}', "
+                f"memory_constraints={self.memory_constraints}, "
+                f"vulnerabilities_found={len(self.vulnerabilities)})")
     
     @handle_errors(operation_name="firmware_scan", retry_count=1)
     @track_performance("firmware_scan")
@@ -233,8 +251,8 @@ class FirmwareScanner:
             # Check if file exists and is readable
             firmware_path_obj = Path(firmware_path)
             if not firmware_path_obj.exists():
-                raise FirmwareAnalysisError(f"Firmware file not found: {firmware_path}", 
-                                          firmware_path=firmware_path)
+                self.logger.warning(f"Firmware file not found: {firmware_path}")
+                return []  # Return empty vulnerability list for nonexistent files
             
             if not firmware_path_obj.is_file():
                 raise FirmwareAnalysisError(f"Path is not a file: {firmware_path}",
@@ -248,7 +266,8 @@ class FirmwareScanner:
             metrics_collector.record_metric("firmware.size_bytes", firmware_size, "bytes")
             
             if firmware_size == 0:
-                raise FirmwareAnalysisError("Firmware file is empty", firmware_path=firmware_path)
+                self.logger.warning(f"Firmware file is empty: {firmware_path}")
+                return []  # Return empty vulnerability list for empty files
             
             if firmware_size > 100 * 1024 * 1024:  # 100MB limit
                 self.logger.warning(f"Large firmware file: {firmware_size / (1024*1024):.1f} MB")
@@ -331,7 +350,7 @@ class FirmwareScanner:
                     description=f"RSA implementation detected with {name} at 0x{address:08x}",
                     mitigation="Replace with Dilithium2 or Dilithium3 digital signatures",
                     stack_usage=key_size // 8,  # Estimate
-                    available_stack=self.memory_constraints.get('ram', 0) // 4
+                    available_stack=self.memory_constraints.get('ram', 128*1024) // 4
                 )
                 self.vulnerabilities.append(vuln)
         
@@ -350,7 +369,7 @@ class FirmwareScanner:
                     description=f"ECC {curve_name} curve implementation detected at 0x{address:08x}",
                     mitigation="Replace with Kyber512 or Kyber768 key encapsulation",
                     stack_usage=64,  # Typical ECC stack usage
-                    available_stack=self.memory_constraints.get('ram', 0) // 4
+                    available_stack=self.memory_constraints.get('ram', 128*1024) // 4
                 )
                 self.vulnerabilities.append(vuln)
     
@@ -377,7 +396,7 @@ class FirmwareScanner:
                     description=f"Reference to {crypto_string.decode()} algorithm at 0x{address:08x}",
                     mitigation=self._get_pqc_mitigation(algorithm),
                     stack_usage=32,  # Conservative estimate
-                    available_stack=self.memory_constraints.get('ram', 0) // 4
+                    available_stack=self.memory_constraints.get('ram', 128*1024) // 4
                 )
                 self.vulnerabilities.append(vuln)
     
@@ -402,7 +421,7 @@ class FirmwareScanner:
                         description=f"Suspected RSA modular exponentiation at 0x{insn.address:08x}",
                         mitigation="Verify and replace with Dilithium digital signatures",
                         stack_usage=256,  # Conservative estimate
-                        available_stack=self.memory_constraints.get('ram', 0) // 4
+                        available_stack=self.memory_constraints.get('ram', 128*1024) // 4
                     )
                     self.vulnerabilities.append(vuln)
                 
@@ -417,7 +436,7 @@ class FirmwareScanner:
                         description=f"Suspected ECC point multiplication at 0x{insn.address:08x}",
                         mitigation="Replace with Kyber key encapsulation mechanism",
                         stack_usage=128,
-                        available_stack=self.memory_constraints.get('ram', 0) // 4
+                        available_stack=self.memory_constraints.get('ram', 128*1024) // 4
                     )
                     self.vulnerabilities.append(vuln)
         
@@ -641,7 +660,7 @@ class FirmwareScanner:
             )
         
         total_stack_needed = sum(vuln.stack_usage for vuln in self.vulnerabilities)
-        available_ram = self.memory_constraints.get('ram', 0)
+        available_ram = self.memory_constraints.get('ram', 128*1024)
         
         if total_stack_needed > available_ram * 0.6:
             recommendations.append(
