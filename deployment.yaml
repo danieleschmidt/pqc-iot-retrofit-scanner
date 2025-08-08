@@ -1,0 +1,153 @@
+# Production Deployment Configuration for PQC IoT Retrofit Scanner
+# 🤖 Generated with Claude Code (https://claude.ai/code)
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pqc-scanner-config
+  namespace: pqc-iot
+data:
+  # Performance Configuration
+  cache_enabled: "true"
+  cache_size_mb: "512"
+  max_workers: "4"
+  enable_auto_scaling: "true"
+  
+  # Security Configuration
+  enable_monitoring: "true"
+  log_level: "INFO"
+  metrics_enabled: "true"
+  
+  # Resource Limits
+  max_memory_mb: "2048"
+  max_cpu_percent: "80"
+  timeout_seconds: "300"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pqc-iot-retrofit-scanner
+  namespace: pqc-iot
+  labels:
+    app: pqc-scanner
+    version: v1.0.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pqc-scanner
+  template:
+    metadata:
+      labels:
+        app: pqc-scanner
+    spec:
+      containers:
+      - name: pqc-scanner
+        image: pqc-iot-retrofit:v1.0.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: CACHE_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: pqc-scanner-config
+              key: cache_enabled
+        - name: CACHE_SIZE_MB
+          valueFrom:
+            configMapKeyRef:
+              name: pqc-scanner-config
+              key: cache_size_mb
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: pqc-scanner-config
+              key: log_level
+        resources:
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: cache-volume
+          mountPath: /app/cache
+        - name: logs-volume
+          mountPath: /app/logs
+      volumes:
+      - name: cache-volume
+        emptyDir:
+          sizeLimit: 1Gi
+      - name: logs-volume
+        emptyDir:
+          sizeLimit: 500Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pqc-scanner-service
+  namespace: pqc-iot
+spec:
+  selector:
+    app: pqc-scanner
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pqc-scanner-hpa
+  namespace: pqc-iot
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pqc-iot-retrofit-scanner
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: pqc-scanner-metrics
+  namespace: pqc-iot
+spec:
+  selector:
+    matchLabels:
+      app: pqc-scanner
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics

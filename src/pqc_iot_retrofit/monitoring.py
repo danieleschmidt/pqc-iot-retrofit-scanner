@@ -17,8 +17,14 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 from collections import defaultdict, deque
 from pathlib import Path
-import psutil
 import os
+
+# Optional dependency for system monitoring
+try:
+    import psutil
+    PSUTIL_AVAILABLE = True
+except ImportError:
+    PSUTIL_AVAILABLE = False
 
 from .error_handling import ErrorSeverity, ErrorCategory, global_error_handler
 
@@ -65,7 +71,7 @@ class MetricsCollector:
         self.error_counts = defaultdict(int)
         
         # System metrics
-        self.process = psutil.Process()
+        self.process = psutil.Process() if PSUTIL_AVAILABLE else None
         self.start_time = time.time()
     
     def record_metric(self, name: str, value: float, unit: str = "", tags: Dict[str, str] = None):
@@ -170,9 +176,14 @@ class MetricsCollector:
             memory_info = self.process.memory_info()
             
             # System-wide metrics
-            system_cpu = psutil.cpu_percent(interval=0.1)
-            system_memory = psutil.virtual_memory()
-            disk_usage = psutil.disk_usage('/')
+            if PSUTIL_AVAILABLE:
+                system_cpu = psutil.cpu_percent(interval=0.1)
+                system_memory = psutil.virtual_memory()
+                disk_usage = psutil.disk_usage('/')
+            else:
+                system_cpu = 0.0
+                system_memory = type('obj', (object,), {'percent': 0.0, 'available': 0, 'total': 0})()
+                disk_usage = type('obj', (object,), {'percent': 0.0, 'free': 0, 'total': 0})()
             
             return {
                 'process': {

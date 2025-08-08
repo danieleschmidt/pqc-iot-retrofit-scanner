@@ -13,6 +13,7 @@ import hashlib
 import pickle
 import threading
 import gc
+import multiprocessing
 from typing import Any, Dict, List, Optional, Callable, TypeVar, Generic
 from dataclasses import dataclass
 from collections import OrderedDict, defaultdict
@@ -699,6 +700,211 @@ def auto_batch(target_duration: float = 5.0):
                     results.append(batch_result)
             
             return results
+        
+        return wrapper
+    return decorator
+
+
+class ConcurrentProcessingPool:
+    """Advanced concurrent processing with adaptive scaling."""
+    
+    def __init__(self, max_workers: int = None, enable_auto_scaling: bool = True):
+        import concurrent.futures
+        
+        self.max_workers = max_workers or multiprocessing.cpu_count()
+        self.enable_auto_scaling = enable_auto_scaling
+        self.current_workers = min(2, self.max_workers)
+        
+        # Thread pool for I/O bound tasks
+        self.thread_pool = concurrent.futures.ThreadPoolExecutor(
+            max_workers=self.current_workers,
+            thread_name_prefix="pqc_io"
+        )
+        
+        # Process pool for CPU bound tasks
+        self.process_pool = concurrent.futures.ProcessPoolExecutor(
+            max_workers=self.current_workers
+        )
+        
+        # Performance tracking
+        self.task_metrics = defaultdict(lambda: {'total_time': 0, 'count': 0})
+        self.last_scale_check = time.time()
+        
+    def submit_io_task(self, func: Callable, *args, **kwargs):
+        """Submit I/O bound task to thread pool."""
+        return self.thread_pool.submit(func, *args, **kwargs)
+    
+    def submit_cpu_task(self, func: Callable, *args, **kwargs):
+        """Submit CPU bound task to process pool."""
+        return self.process_pool.submit(func, *args, **kwargs)
+    
+    def map_parallel(self, func: Callable, items: List[Any], cpu_bound: bool = False, 
+                    chunk_size: int = None) -> List[Any]:
+        """Parallel map with automatic load balancing."""
+        if not items:
+            return []
+        
+        start_time = time.time()
+        
+        # Auto-scale if enabled
+        if self.enable_auto_scaling:
+            self._check_auto_scale(len(items))
+        
+        # Choose appropriate executor
+        executor = self.process_pool if cpu_bound else self.thread_pool
+        
+        # Calculate optimal chunk size if not provided
+        if chunk_size is None:
+            chunk_size = max(1, len(items) // (self.current_workers * 4))
+        
+        # Submit work
+        try:
+            import concurrent.futures
+            if cpu_bound:
+                # Use process pool map for CPU-bound tasks
+                results = list(executor.map(func, items, chunksize=chunk_size))
+            else:
+                # Use thread pool for I/O-bound tasks
+                futures = [executor.submit(func, item) for item in items]
+                results = [future.result() for future in concurrent.futures.as_completed(futures)]
+        except Exception as e:
+            logging.error(f"Parallel processing error: {e}")
+            # Fallback to sequential processing
+            results = [func(item) for item in items]
+        
+        # Record metrics
+        duration = time.time() - start_time
+        task_name = func.__name__
+        self.task_metrics[task_name]['total_time'] += duration
+        self.task_metrics[task_name]['count'] += 1
+        
+        return results
+    
+    def _check_auto_scale(self, workload_size: int):
+        """Check if we should scale workers up or down."""
+        now = time.time()
+        if now - self.last_scale_check < 30:  # Check every 30 seconds
+            return
+        
+        self.last_scale_check = now
+        
+        # Calculate average task performance
+        if not self.task_metrics:
+            return
+        
+        avg_task_time = sum(m['total_time'] / max(m['count'], 1) for m in self.task_metrics.values()) / len(self.task_metrics)
+        estimated_duration = (workload_size * avg_task_time) / self.current_workers
+        
+        # Scale up if tasks would take too long
+        if estimated_duration > 60 and self.current_workers < self.max_workers:
+            new_workers = min(self.current_workers + 2, self.max_workers)
+            self._scale_workers(new_workers)
+        
+        # Scale down if workers are underutilized
+        elif estimated_duration < 10 and self.current_workers > 2:
+            new_workers = max(self.current_workers - 1, 2)
+            self._scale_workers(new_workers)
+    
+    def _scale_workers(self, new_count: int):
+        """Scale worker pools."""
+        if new_count == self.current_workers:
+            return
+        
+        logging.info(f"Scaling workers from {self.current_workers} to {new_count}")
+        
+        # Update thread pool
+        import concurrent.futures
+        old_thread_pool = self.thread_pool
+        self.thread_pool = concurrent.futures.ThreadPoolExecutor(
+            max_workers=new_count,
+            thread_name_prefix="pqc_io"
+        )
+        old_thread_pool.shutdown(wait=False)
+        
+        # Update process pool
+        old_process_pool = self.process_pool
+        self.process_pool = concurrent.futures.ProcessPoolExecutor(
+            max_workers=new_count
+        )
+        old_process_pool.shutdown(wait=False)
+        
+        self.current_workers = new_count
+    
+    def get_metrics(self) -> Dict[str, Any]:
+        """Get processing metrics."""
+        return {
+            'current_workers': self.current_workers,
+            'max_workers': self.max_workers,
+            'auto_scaling_enabled': self.enable_auto_scaling,
+            'task_metrics': dict(self.task_metrics),
+            'total_tasks': sum(m['count'] for m in self.task_metrics.values()),
+            'total_processing_time': sum(m['total_time'] for m in self.task_metrics.values())
+        }
+    
+    def shutdown(self):
+        """Shutdown all worker pools."""
+        self.thread_pool.shutdown(wait=True)
+        self.process_pool.shutdown(wait=True)
+
+
+# Global concurrent processing pool
+concurrent_pool = ConcurrentProcessingPool()
+
+
+# Enhanced decorators for Generation 3 performance
+def parallel_processing(cpu_bound: bool = False, chunk_size: int = None):
+    """Decorator for automatic parallel processing."""
+    
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(items: List[Any], *args, **kwargs):
+            if len(items) <= 1:
+                # Not worth parallelizing
+                return [func(item, *args, **kwargs) for item in items]
+            
+            return concurrent_pool.map_parallel(func, items, cpu_bound, chunk_size)
+        
+        return wrapper
+    return decorator
+
+
+def optimized_for_embedded():
+    """Decorator to optimize function for embedded constraints."""
+    
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Enable aggressive garbage collection
+            gc.collect()
+            
+            # Monitor memory before execution
+            start_memory = 0
+            try:
+                import psutil
+                process = psutil.Process()
+                start_memory = process.memory_info().rss / (1024 * 1024)
+            except ImportError:
+                pass
+            
+            # Execute with timeout to prevent hangs
+            import signal
+            
+            def timeout_handler(signum, frame):
+                raise TimeoutError("Function execution timeout")
+            
+            old_handler = signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(30)  # 30-second timeout
+            
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+                signal.signal(signal.SIGALRM, old_handler)
+                
+                # Force cleanup after execution
+                gc.collect()
+            
+            return result
         
         return wrapper
     return decorator
