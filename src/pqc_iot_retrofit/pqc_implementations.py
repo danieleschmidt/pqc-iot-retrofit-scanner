@@ -48,6 +48,7 @@ class PQCImplementation:
     header_code: str
     performance_estimates: Dict[str, int]
     memory_usage: Dict[str, int]
+    test_vectors: List[Tuple[bytes, bytes, bytes]] = None
 
 
 class PQCImplementationGenerator:
