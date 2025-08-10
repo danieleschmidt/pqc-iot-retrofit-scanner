@@ -1,0 +1,276 @@
+# Docker Compose for PQC IoT Retrofit Scanner - Generation 4
+# Advanced AI-powered deployment with all features enabled
+
+version: '3.8'
+
+services:
+  # Core scanner service
+  pqc-scanner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - BUILD_DATE=${BUILD_DATE:-now}
+        - VCS_REF=${VCS_REF:-latest}
+        - VERSION=${VERSION:-1.0.0}
+    image: pqc-iot-scanner:gen4
+    container_name: pqc-scanner-gen4
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PQC_ENABLE_GEN4=true
+      - PQC_AI_LEARNING=true
+      - PQC_QUANTUM_ANALYSIS=true
+      - PQC_LOG_LEVEL=INFO
+    volumes:
+      - ./firmware:/app/data/firmware:ro
+      - ./reports:/app/output/reports
+      - ./models:/app/data/models
+      - pqc-logs:/app/logs
+    networks:
+      - pqc-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "from pqc_iot_retrofit.scanner import FirmwareScanner; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # AI training service for autonomous model updates
+  pqc-ai-trainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: pqc-iot-scanner:gen4
+    container_name: pqc-ai-trainer
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PQC_ENABLE_GEN4=true
+      - PQC_AI_LEARNING=true
+      - PQC_TRAINING_MODE=true
+    volumes:
+      - ./baseline_firmware:/app/data/baseline:ro
+      - ./models:/app/data/models
+      - pqc-logs:/app/logs
+    networks:
+      - pqc-network
+    command: ["python", "-m", "pqc_iot_retrofit.cli_gen4", "train-ai", "/app/data/baseline/*.bin"]
+    restart: "no"
+    depends_on:
+      - pqc-scanner
+
+  # Autonomous research service
+  pqc-research:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: pqc-iot-scanner:gen4
+    container_name: pqc-research
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PQC_ENABLE_GEN4=true
+      - PQC_AUTONOMOUS_RESEARCH=true
+      - PQC_RESEARCH_DURATION=1440  # 24 hours
+    volumes:
+      - ./research_data:/app/data/research
+      - ./models:/app/data/models
+      - pqc-logs:/app/logs
+    networks:
+      - pqc-network
+    command: [
+      "python", "-m", "pqc_iot_retrofit.cli_gen4", 
+      "research", 
+      "--objectives", "performance_benchmarking", "algorithm_optimization",
+      "--duration", "1440",
+      "--auto-publish"
+    ]
+    restart: unless-stopped
+    depends_on:
+      - pqc-scanner
+
+  # Quantum threat monitoring service
+  pqc-quantum-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: pqc-iot-scanner:gen4
+    container_name: pqc-quantum-monitor
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PQC_ENABLE_GEN4=true
+      - PQC_QUANTUM_ANALYSIS=true
+      - PQC_MONITOR_INTERVAL=3600  # 1 hour
+    volumes:
+      - ./threat_intelligence:/app/data/threats:ro
+      - ./quantum_reports:/app/output/quantum
+      - pqc-logs:/app/logs
+    networks:
+      - pqc-network
+    command: ["python", "-m", "pqc_iot_retrofit.cli_gen4", "quantum-threats"]
+    restart: unless-stopped
+
+  # Monitoring and metrics service
+  pqc-monitoring:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: pqc-iot-scanner:gen4
+    container_name: pqc-monitoring
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PQC_ENABLE_METRICS=true
+      - PROMETHEUS_PORT=8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - pqc-logs:/app/logs:ro
+      - ./monitoring_config:/app/config/monitoring:ro
+    networks:
+      - pqc-network
+    command: ["python", "-m", "pqc_iot_retrofit.monitoring.prometheus_metrics"]
+    restart: unless-stopped
+
+  # Web dashboard (optional)
+  pqc-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: pqc-iot-scanner:gen4
+    container_name: pqc-dashboard
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PQC_DASHBOARD_MODE=true
+      - FLASK_ENV=production
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./reports:/app/output/reports:ro
+      - ./models:/app/data/models:ro
+      - pqc-logs:/app/logs
+    networks:
+      - pqc-network
+    # Note: Dashboard implementation would require additional web framework
+    command: ["python", "-c", "print('Dashboard service placeholder - implement with Flask/FastAPI')"]
+    restart: unless-stopped
+
+  # Development environment
+  pqc-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    image: pqc-iot-scanner:dev
+    container_name: pqc-dev
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PQC_DEVELOPMENT_MODE=true
+    ports:
+      - "8888:8888"  # Jupyter notebook
+      - "8000:8000"  # Development server
+    volumes:
+      - .:/app/workspace
+      - ./notebooks:/app/notebooks
+      - ./experiments:/app/experiments
+      - pqc-logs:/app/logs
+    networks:
+      - pqc-network
+    command: ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
+    profiles:
+      - dev
+    restart: unless-stopped
+
+  # Testing service
+  pqc-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: testing
+    image: pqc-iot-scanner:test
+    container_name: pqc-test
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PQC_TEST_MODE=true
+    volumes:
+      - .:/app/workspace:ro
+      - ./test_results:/app/test_results
+    networks:
+      - pqc-network
+    command: ["pytest", "-v", "--junitxml=/app/test_results/junit.xml", "--cov-report=html:/app/test_results/coverage"]
+    profiles:
+      - test
+    restart: "no"
+
+  # Database for research and metrics (optional)
+  pqc-database:
+    image: postgres:14-alpine
+    container_name: pqc-database
+    environment:
+      - POSTGRES_DB=pqc_research
+      - POSTGRES_USER=pqcuser
+      - POSTGRES_PASSWORD=securepassword123
+    volumes:
+      - pqc-db-data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - pqc-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pqcuser"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    profiles:
+      - database
+
+  # Redis for caching and task queues (optional)
+  pqc-cache:
+    image: redis:7-alpine
+    container_name: pqc-cache
+    command: redis-server --appendonly yes
+    volumes:
+      - pqc-cache-data:/data
+    networks:
+      - pqc-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    profiles:
+      - cache
+
+volumes:
+  pqc-logs:
+    driver: local
+  pqc-db-data:
+    driver: local
+  pqc-cache-data:
+    driver: local
+
+networks:
+  pqc-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Docker Compose profiles for different deployment scenarios:
+# 
+# Development:
+#   docker-compose -f docker-compose.gen4.yml --profile dev up
+#
+# Testing:
+#   docker-compose -f docker-compose.gen4.yml --profile test up --abort-on-container-exit
+#
+# Full Production:
+#   docker-compose -f docker-compose.gen4.yml --profile database --profile cache up -d
+#
+# Core Services Only:
+#   docker-compose -f docker-compose.gen4.yml up pqc-scanner pqc-monitoring
