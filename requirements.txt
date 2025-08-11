@@ -16,7 +16,7 @@ numpy>=1.21.0  # Numerical operations
 # Optional analysis dependencies  
 capstone>=4.0.0  # Disassembly (optional)
 lief>=0.12.0     # Binary analysis (optional)
-elftools>=0.29   # ELF parsing (optional)
+pyelftools>=0.29   # ELF parsing (optional)
 
 # Development and testing (optional)
 pytest>=7.0.0
