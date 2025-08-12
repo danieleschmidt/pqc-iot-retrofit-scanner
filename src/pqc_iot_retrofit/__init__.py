@@ -1,11 +1,11 @@
-"""PQC IoT Retrofit Scanner - Generation 4.
+"""PQC IoT Retrofit Scanner - Generation 5.
 
-Advanced AI-powered CLI and library for auditing embedded firmware and 
-generating post-quantum cryptography solutions with adaptive intelligence,
-quantum resilience analysis, and autonomous research capabilities.
+Revolutionary AI-powered CLI and library for auditing embedded firmware and 
+generating post-quantum cryptography solutions with quantum-enhanced ML analysis,
+autonomous research breakthroughs, and real-time security orchestration.
 """
 
-__version__ = "1.0.0"
+__version__ = "2.0.0"
 __author__ = "Daniel Schmidt"
 __email__ = "daniel@terragon.ai"
 
@@ -16,6 +16,20 @@ from .patcher import PQCPatcher
 from .adaptive_ai import adaptive_ai, AdaptiveAI, EnsembleDetector, AnomalyDetector
 from .quantum_resilience import quantum_resilience, QuantumResilienceAnalyzer
 from .autonomous_research import autonomous_researcher, AutonomousResearcher
+
+# Generation 5: Breakthrough Capabilities
+from .quantum_ml_analysis import (
+    quantum_enhanced_analysis, QuantumCryptographicAnalyzer, 
+    QuantumNeuralNetwork, adaptive_quantum_analysis
+)
+from .research_breakthrough import (
+    autonomous_research_breakthrough, AdvancedCryptographicResearcher,
+    NovelAlgorithm, ResearchBreakthrough
+)
+from .realtime_security_orchestrator import (
+    create_security_orchestrator, RealTimeSecurityOrchestrator,
+    IoTDevice, SecurityThreat
+)
 
 __all__ = [
     # Core Components
@@ -30,5 +44,19 @@ __all__ = [
     "quantum_resilience",
     "QuantumResilienceAnalyzer",
     "autonomous_researcher", 
-    "AutonomousResearcher"
+    "AutonomousResearcher",
+    
+    # Generation 5: Breakthrough Technologies
+    "quantum_enhanced_analysis",
+    "QuantumCryptographicAnalyzer",
+    "QuantumNeuralNetwork", 
+    "adaptive_quantum_analysis",
+    "autonomous_research_breakthrough",
+    "AdvancedCryptographicResearcher",
+    "NovelAlgorithm",
+    "ResearchBreakthrough",
+    "create_security_orchestrator",
+    "RealTimeSecurityOrchestrator",
+    "IoTDevice",
+    "SecurityThreat"
 ]

@@ -17,6 +17,8 @@ import time
 from collections import defaultdict, deque
 import threading
 from concurrent.futures import ThreadPoolExecutor
+import random
+import math
 
 from .scanner import CryptoVulnerability, RiskLevel, CryptoAlgorithm
 from .error_handling import handle_errors, ValidationError
