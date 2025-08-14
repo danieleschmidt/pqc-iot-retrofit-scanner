@@ -1,0 +1,329 @@
+{
+  "benchmark_timestamp": "2025-08-14T14:42:21.954783+00:00",
+  "benchmark_count": 23,
+  "system_info": {
+    "cpu_count": 2,
+    "memory_total_gb": 3.8496856689453125,
+    "python_version": "3.12.3",
+    "platform": "linux"
+  },
+  "results": [
+    {
+      "name": "firmware_analysis_small",
+      "duration_seconds": 0.3541419982910156,
+      "memory_peak_mb": 29.80859375,
+      "memory_average_mb": 29.80859375,
+      "cpu_percent": 0,
+      "throughput": 180.71846973486637,
+      "metadata": {
+        "sample_size_kb": 64.0,
+        "iterations": 5,
+        "std_dev": 0.0824542086917939
+      },
+      "timestamp": "2025-08-14T14:42:03.284878+00:00"
+    },
+    {
+      "name": "firmware_analysis_medium",
+      "duration_seconds": 0.26259236335754393,
+      "memory_peak_mb": 29.80859375,
+      "memory_average_mb": 29.80859375,
+      "cpu_percent": 0,
+      "throughput": 1949.7901365199427,
+      "metadata": {
+        "sample_size_kb": 512.0,
+        "iterations": 5,
+        "std_dev": 0.09825756573634999
+      },
+      "timestamp": "2025-08-14T14:42:05.391924+00:00"
+    },
+    {
+      "name": "firmware_analysis_large",
+      "duration_seconds": 0.23226943016052246,
+      "memory_peak_mb": 29.80859375,
+      "memory_average_mb": 29.80859375,
+      "cpu_percent": 0,
+      "throughput": 8817.346297291977,
+      "metadata": {
+        "sample_size_kb": 2048.0,
+        "iterations": 5,
+        "std_dev": 0.07568298235183518
+      },
+      "timestamp": "2025-08-14T14:42:07.400148+00:00"
+    },
+    {
+      "name": "vulnerability_detection_rsa",
+      "duration_seconds": 0.010226297378540038,
+      "memory_peak_mb": 0,
+      "memory_average_mb": 0,
+      "cpu_percent": 0,
+      "throughput": 97.7871034826845,
+      "metadata": {
+        "algorithm": "RSA",
+        "firmware_size_kb": 0.984375
+      },
+      "timestamp": "2025-08-14T14:42:07.451779+00:00"
+    },
+    {
+      "name": "vulnerability_detection_ecdsa",
+      "duration_seconds": 0.010236501693725586,
+      "memory_peak_mb": 0,
+      "memory_average_mb": 0,
+      "cpu_percent": 0,
+      "throughput": 97.68962385000582,
+      "metadata": {
+        "algorithm": "ECDSA",
+        "firmware_size_kb": 0.984375
+      },
+      "timestamp": "2025-08-14T14:42:07.503162+00:00"
+    },
+    {
+      "name": "vulnerability_detection_aes",
+      "duration_seconds": 0.010255718231201172,
+      "memory_peak_mb": 0,
+      "memory_average_mb": 0,
+      "cpu_percent": 0,
+      "throughput": 97.50657900854574,
+      "metadata": {
+        "algorithm": "AES",
+        "firmware_size_kb": 0.9990234375
+      },
+      "timestamp": "2025-08-14T14:42:07.554611+00:00"
+    },
+    {
+      "name": "vulnerability_detection_des",
+      "duration_seconds": 0.010236310958862304,
+      "memory_peak_mb": 0,
+      "memory_average_mb": 0,
+      "cpu_percent": 0,
+      "throughput": 97.69144411681131,
+      "metadata": {
+        "algorithm": "DES",
+        "firmware_size_kb": 0.9912109375
+      },
+      "timestamp": "2025-08-14T14:42:07.605981+00:00"
+    },
+    {
+      "name": "patch_generation_simple_replacement",
+      "duration_seconds": 0.05027561187744141,
+      "memory_peak_mb": 0,
+      "memory_average_mb": 0,
+      "cpu_percent": 0,
+      "throughput": null,
+      "metadata": {
+        "name": "simple_replacement",
+        "complexity": 1
+      },
+      "timestamp": "2025-08-14T14:42:07.858679+00:00"
+    },
+    {
+      "name": "patch_generation_complex_refactoring",
+      "duration_seconds": 0.25031890869140627,
+      "memory_peak_mb": 0,
+      "memory_average_mb": 0,
+      "cpu_percent": 0,
+      "throughput": null,
+      "metadata": {
+        "name": "complex_refactoring",
+        "complexity": 5
+      },
+      "timestamp": "2025-08-14T14:42:09.111646+00:00"
+    },
+    {
+      "name": "patch_generation_multi_file_patch",
+      "duration_seconds": 0.5003686904907226,
+      "memory_peak_mb": 0,
+      "memory_average_mb": 0,
+      "cpu_percent": 0,
+      "throughput": null,
+      "metadata": {
+        "name": "multi_file_patch",
+        "complexity": 10
+      },
+      "timestamp": "2025-08-14T14:42:11.614854+00:00"
+    },
+    {
+      "name": "concurrent_analysis_1_workers",
+      "duration_seconds": 1.0511929988861084,
+      "memory_peak_mb": 28.37109375,
+      "memory_average_mb": 28.37109375,
+      "cpu_percent": 9.5,
+      "throughput": 9.5130009528188,
+      "metadata": {
+        "worker_count": 1,
+        "firmware_count": 10,
+        "firmware_size_kb": 512.0
+      },
+      "timestamp": "2025-08-14T14:42:12.713798+00:00"
+    },
+    {
+      "name": "concurrent_analysis_2_workers",
+      "duration_seconds": 0.5338280200958252,
+      "memory_peak_mb": 28.50390625,
+      "memory_average_mb": 28.50390625,
+      "cpu_percent": 148.96666666666667,
+      "throughput": 18.732624784673053,
+      "metadata": {
+        "worker_count": 2,
+        "firmware_count": 10,
+        "firmware_size_kb": 512.0
+      },
+      "timestamp": "2025-08-14T14:42:13.247663+00:00"
+    },
+    {
+      "name": "concurrent_analysis_4_workers",
+      "duration_seconds": 0.3189690113067627,
+      "memory_peak_mb": 28.515625,
+      "memory_average_mb": 28.515625,
+      "cpu_percent": 46.675,
+      "throughput": 31.35100792090013,
+      "metadata": {
+        "worker_count": 4,
+        "firmware_count": 10,
+        "firmware_size_kb": 512.0
+      },
+      "timestamp": "2025-08-14T14:42:13.566664+00:00"
+    },
+    {
+      "name": "memory_usage_baseline",
+      "duration_seconds": 1.0069434642791748,
+      "memory_peak_mb": 28.53125,
+      "memory_average_mb": 28.53125,
+      "cpu_percent": 0,
+      "throughput": null,
+      "metadata": {
+        "name": "baseline",
+        "firmware_size": 1024
+      },
+      "timestamp": "2025-08-14T14:42:14.573932+00:00"
+    },
+    {
+      "name": "memory_usage_medium_load",
+      "duration_seconds": 1.012679100036621,
+      "memory_peak_mb": 28.53125,
+      "memory_average_mb": 28.53125,
+      "cpu_percent": 9.9,
+      "throughput": null,
+      "metadata": {
+        "name": "medium_load",
+        "firmware_size": 10240
+      },
+      "timestamp": "2025-08-14T14:42:15.586973+00:00"
+    },
+    {
+      "name": "memory_usage_high_load",
+      "duration_seconds": 1.1527268886566162,
+      "memory_peak_mb": 28.71484375,
+      "memory_average_mb": 28.71484375,
+      "cpu_percent": 9.487499999999999,
+      "throughput": null,
+      "metadata": {
+        "name": "high_load",
+        "firmware_size": 51200
+      },
+      "timestamp": "2025-08-14T14:42:16.740134+00:00"
+    },
+    {
+      "name": "large_firmware_1mb",
+      "duration_seconds": 0.021915674209594727,
+      "memory_peak_mb": 0,
+      "memory_average_mb": 0,
+      "cpu_percent": 0,
+      "throughput": 45.62944267360016,
+      "metadata": {
+        "firmware_size_mb": 1
+      },
+      "timestamp": "2025-08-14T14:42:16.762726+00:00"
+    },
+    {
+      "name": "large_firmware_5mb",
+      "duration_seconds": 0.12037920951843262,
+      "memory_peak_mb": 0,
+      "memory_average_mb": 0,
+      "cpu_percent": 0,
+      "throughput": 41.5354114718156,
+      "metadata": {
+        "firmware_size_mb": 5
+      },
+      "timestamp": "2025-08-14T14:42:16.895156+00:00"
+    },
+    {
+      "name": "large_firmware_10mb",
+      "duration_seconds": 0.2076566219329834,
+      "memory_peak_mb": 0,
+      "memory_average_mb": 0,
+      "cpu_percent": 0,
+      "throughput": 48.1564224001837,
+      "metadata": {
+        "firmware_size_mb": 10
+      },
+      "timestamp": "2025-08-14T14:42:17.129556+00:00"
+    },
+    {
+      "name": "cli_--help",
+      "duration_seconds": 0.12239925066630046,
+      "memory_peak_mb": 0,
+      "memory_average_mb": 0,
+      "cpu_percent": 0,
+      "throughput": null,
+      "metadata": {
+        "operation": [
+          "--help"
+        ]
+      },
+      "timestamp": "2025-08-14T14:42:17.541241+00:00"
+    },
+    {
+      "name": "cli_--version",
+      "duration_seconds": 0.12196135520935059,
+      "memory_peak_mb": 0,
+      "memory_average_mb": 0,
+      "cpu_percent": 0,
+      "throughput": null,
+      "metadata": {
+        "operation": [
+          "--version"
+        ]
+      },
+      "timestamp": "2025-08-14T14:42:17.907235+00:00"
+    },
+    {
+      "name": "docker_image_build",
+      "duration_seconds": 2.022968053817749,
+      "memory_peak_mb": 0,
+      "memory_average_mb": 0,
+      "cpu_percent": 0,
+      "throughput": null,
+      "metadata": {
+        "name": "image_build",
+        "command": [
+          "docker",
+          "build",
+          "--no-cache",
+          "-t",
+          "pqc-scanner-benchmark",
+          "."
+        ]
+      },
+      "timestamp": "2025-08-14T14:42:19.930400+00:00"
+    },
+    {
+      "name": "docker_container_start",
+      "duration_seconds": 2.024273633956909,
+      "memory_peak_mb": 0,
+      "memory_average_mb": 0,
+      "cpu_percent": 0,
+      "throughput": null,
+      "metadata": {
+        "name": "container_start",
+        "command": [
+          "docker",
+          "run",
+          "--rm",
+          "pqc-scanner-benchmark",
+          "--version"
+        ]
+      },
+      "timestamp": "2025-08-14T14:42:21.954746+00:00"
+    }
+  ]
+}
