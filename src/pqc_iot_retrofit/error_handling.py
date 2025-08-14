@@ -148,6 +148,20 @@ class ExternalDependencyError(PQCRetrofitError):
         self.operation = operation
 
 
+class SecurityError(PQCRetrofitError):
+    """Security-related errors for Generation 2."""
+    
+    def __init__(self, message: str, security_level: str = "medium", violation_type: str = None):
+        super().__init__(
+            message,
+            severity=ErrorSeverity.HIGH,
+            category=ErrorCategory.VALIDATION,
+            recoverable=False
+        )
+        self.security_level = security_level
+        self.violation_type = violation_type
+
+
 class ConfigurationError(PQCRetrofitError):
     """Configuration errors."""
     
