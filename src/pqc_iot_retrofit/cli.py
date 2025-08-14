@@ -25,7 +25,7 @@ _optimizations_enabled = True
 
 
 @click.group()
-@click.version_option()
+@click.version_option(package_name="pqc-iot-retrofit-scanner")
 @click.option("--enable-gen3", is_flag=True, default=True, help="Enable Generation 3 optimizations")
 @click.option("--max-workers", type=int, default=None, help="Maximum worker threads")
 def main(enable_gen3, max_workers):
