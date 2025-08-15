@@ -1,0 +1,121 @@
+{
+  "deployments": [
+    {
+      "deployment_id": "aa6a161c",
+      "status": "success",
+      "start_time": 1755300169.429158,
+      "end_time": 1755300172.4623618,
+      "environment": "development",
+      "version": "v2.0.0",
+      "error_message": null,
+      "health_checks_passed": 2,
+      "total_health_checks": 3,
+      "duration_seconds": 3.0332038402557373,
+      "health_check_success_rate": 66.66666666666666
+    },
+    {
+      "deployment_id": "4af1eebe",
+      "status": "success",
+      "start_time": 1755300169.4292552,
+      "end_time": 1755300174.9998832,
+      "environment": "staging",
+      "version": "v2.0.0",
+      "error_message": null,
+      "health_checks_passed": 2,
+      "total_health_checks": 2,
+      "duration_seconds": 5.570627927780151,
+      "health_check_success_rate": 100.0
+    },
+    {
+      "deployment_id": "383ad661",
+      "status": "success",
+      "start_time": 1755300169.4293146,
+      "end_time": 1755300175.0250325,
+      "environment": "production",
+      "version": "v2.0.0",
+      "error_message": null,
+      "health_checks_passed": 0,
+      "total_health_checks": 0,
+      "duration_seconds": 5.595717906951904
+    }
+  ],
+  "configuration": {
+    "environments": {
+      "development": {
+        "region": "us-east-1",
+        "replicas": 1,
+        "health_check_url": "http://localhost:8080/health",
+        "timeout_seconds": 300
+      },
+      "staging": {
+        "region": "us-east-1",
+        "replicas": 2,
+        "health_check_url": "https://staging-api.example.com/health",
+        "timeout_seconds": 600
+      },
+      "production": {
+        "region": "us-east-1",
+        "replicas": 3,
+        "health_check_url": "https://api.example.com/health",
+        "timeout_seconds": 900,
+        "canary_percentage": 5
+      }
+    },
+    "global": {
+      "rollback_enabled": true,
+      "max_concurrent_deployments": 3,
+      "health_check_retries": 5,
+      "health_check_interval": 30
+    }
+  },
+  "report": {
+    "report_timestamp": 1755300175.0251963,
+    "summary": {
+      "total_deployments": 3,
+      "successful": 3,
+      "failed": 0,
+      "in_progress": 0,
+      "success_rate": 100.0
+    },
+    "environment_breakdown": {
+      "development": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0
+      },
+      "staging": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0
+      },
+      "production": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0
+      }
+    },
+    "recent_deployments": [
+      {
+        "deployment_id": "383ad661",
+        "environment": "production",
+        "version": "v2.0.0",
+        "status": "success",
+        "start_time": 1755300169.4293146
+      },
+      {
+        "deployment_id": "4af1eebe",
+        "environment": "staging",
+        "version": "v2.0.0",
+        "status": "success",
+        "start_time": 1755300169.4292552
+      },
+      {
+        "deployment_id": "aa6a161c",
+        "environment": "development",
+        "version": "v2.0.0",
+        "status": "success",
+        "start_time": 1755300169.429158
+      }
+    ]
+  }
+}

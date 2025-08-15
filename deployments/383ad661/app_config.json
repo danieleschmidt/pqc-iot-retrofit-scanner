@@ -1,0 +1,15 @@
+{
+  "environment": "production",
+  "version": "v2.0.0",
+  "log_level": "INFO",
+  "metrics_enabled": true,
+  "security": {
+    "enable_ssl": true,
+    "require_auth": true
+  },
+  "performance": {
+    "max_workers": 6,
+    "cache_size": 1000,
+    "timeout_seconds": 900
+  }
+}

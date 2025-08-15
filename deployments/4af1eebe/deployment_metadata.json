@@ -1,0 +1,12 @@
+{
+  "deployment_id": "4af1eebe",
+  "environment": "staging",
+  "version": "v2.0.0",
+  "generated_at": 1755300172.498173,
+  "config": {
+    "region": "us-east-1",
+    "replicas": 2,
+    "health_check_url": "https://staging-api.example.com/health",
+    "timeout_seconds": 600
+  }
+}

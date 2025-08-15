@@ -1,0 +1,15 @@
+{
+  "environment": "staging",
+  "version": "v2.0.0",
+  "log_level": "DEBUG",
+  "metrics_enabled": true,
+  "security": {
+    "enable_ssl": false,
+    "require_auth": true
+  },
+  "performance": {
+    "max_workers": 4,
+    "cache_size": 1000,
+    "timeout_seconds": 600
+  }
+}

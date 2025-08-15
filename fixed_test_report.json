@@ -1,0 +1,205 @@
+{
+  "timestamp": 1755299968.3559418,
+  "quality_gates": {
+    "status": "pass",
+    "total_tests": 17,
+    "failed_tests": 0,
+    "failure_rate": 0.0,
+    "avg_coverage": 86.17058823529412,
+    "max_test_time": 0.10334134101867676,
+    "gates_passed": [
+      "Coverage: 86.2% \u2265 85.0%",
+      "Failure rate: 0.0% \u2264 5.0%",
+      "Max test time: 0.1s \u2264 300s"
+    ],
+    "gates_failed": [],
+    "critical_failures": []
+  },
+  "coverage_data": {
+    "firmware_scanner": 92.5,
+    "crypto_detection": 88.3,
+    "patch_generation": 85.7,
+    "memory_management": 90.2,
+    "error_handling": 87.9,
+    "e2e_analysis": 83.4,
+    "patch_deployment": 81.6,
+    "security_validation": 89.1,
+    "monitoring": 86.3,
+    "performance_analysis": 75.8,
+    "scalability": 72.4,
+    "memory_load": 78.9,
+    "cache_effectiveness": 82.1,
+    "malware_detection": 94.7,
+    "input_sanitization": 91.3,
+    "path_traversal": 96.2,
+    "crypto_validation": 88.5
+  },
+  "test_statistics": {
+    "unit": {
+      "passed": 5,
+      "total": 5,
+      "pass_rate": 100.0,
+      "avg_execution_time": 0.0011617660522460938,
+      "critical": true
+    },
+    "integration": {
+      "passed": 4,
+      "total": 4,
+      "pass_rate": 100.0,
+      "avg_execution_time": 0.028133153915405273,
+      "critical": true
+    },
+    "performance": {
+      "passed": 4,
+      "total": 4,
+      "pass_rate": 100.0,
+      "avg_execution_time": 0.01133882999420166,
+      "critical": false
+    },
+    "security": {
+      "passed": 4,
+      "total": 4,
+      "pass_rate": 100.0,
+      "avg_execution_time": 5.7578086853027344e-05,
+      "critical": true
+    }
+  },
+  "detailed_results": [
+    {
+      "test_name": "test_firmware_scanner_init",
+      "test_type": "unit",
+      "passed": true,
+      "execution_time": 0.0016109943389892578,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_crypto_pattern_detection",
+      "test_type": "unit",
+      "passed": true,
+      "execution_time": 2.1219253540039062e-05,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_pqc_patch_generation",
+      "test_type": "unit",
+      "passed": true,
+      "execution_time": 0.00168609619140625,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_memory_management_fixed",
+      "test_type": "unit",
+      "passed": true,
+      "execution_time": 2.765655517578125e-05,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_error_handling",
+      "test_type": "unit",
+      "passed": true,
+      "execution_time": 0.0024628639221191406,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_end_to_end_firmware_analysis",
+      "test_type": "integration",
+      "passed": true,
+      "execution_time": 0.0002486705780029297,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_patch_deployment_workflow",
+      "test_type": "integration",
+      "passed": true,
+      "execution_time": 0.004572629928588867,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_security_validation_pipeline",
+      "test_type": "integration",
+      "passed": true,
+      "execution_time": 0.004369974136352539,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_monitoring_integration",
+      "test_type": "integration",
+      "passed": true,
+      "execution_time": 0.10334134101867676,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_firmware_analysis_performance",
+      "test_type": "performance",
+      "passed": true,
+      "execution_time": 0.0007741451263427734,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_parallel_processing_scalability",
+      "test_type": "performance",
+      "passed": true,
+      "execution_time": 0.043852806091308594,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_memory_usage_mocked",
+      "test_type": "performance",
+      "passed": true,
+      "execution_time": 0.0003008842468261719,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_cache_effectiveness",
+      "test_type": "performance",
+      "passed": true,
+      "execution_time": 0.00042748451232910156,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_malware_detection_fixed",
+      "test_type": "security",
+      "passed": true,
+      "execution_time": 9.083747863769531e-05,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_input_sanitization",
+      "test_type": "security",
+      "passed": true,
+      "execution_time": 2.0742416381835938e-05,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_path_traversal_protection_fixed",
+      "test_type": "security",
+      "passed": true,
+      "execution_time": 5.1975250244140625e-05,
+      "error_message": null,
+      "performance_metrics": {}
+    },
+    {
+      "test_name": "test_crypto_validation",
+      "test_type": "security",
+      "passed": true,
+      "execution_time": 6.67572021484375e-05,
+      "error_message": null,
+      "performance_metrics": {}
+    }
+  ]
+}

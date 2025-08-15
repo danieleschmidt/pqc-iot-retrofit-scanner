@@ -1,0 +1,20 @@
+{
+  "package_version": "1.0.0",
+  "generated_timestamp": null,
+  "total_patches": 1,
+  "total_memory_impact": 87000,
+  "patches": [
+    {
+      "target_algorithm": "dilithium2",
+      "pqc_replacement": "dilithium2",
+      "target_location": 104,
+      "patch_size": 1323,
+      "compatibility_mode": true,
+      "memory_requirements": {
+        "flash": 87000,
+        "ram": 11000
+      },
+      "filename": "patch_000_dilithium2.c"
+    }
+  ]
+}

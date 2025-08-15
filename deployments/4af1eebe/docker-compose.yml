@@ -1,0 +1,25 @@
+
+# Docker Compose deployment for PQC Scanner vv2.0.0
+# Environment: staging
+# Generated: 2025-08-15T23:22:52.497641
+
+version: '3.8'
+services:
+  pqc-scanner:
+    image: pqc-iot-retrofit-scanner:v2.0.0
+    ports:
+      - "8080:8080"
+    environment:
+      - ENVIRONMENT=staging
+      - LOG_LEVEL=INFO
+      - REPLICAS=2
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs:rw
+      - ./data:/app/data:rw
+    networks:
+      - pqc-network
+
+networks:
+  pqc-network:
+    driver: bridge
