@@ -1,0 +1,12 @@
+{
+  "deployment_id": "aa6a161c",
+  "environment": "development",
+  "version": "v2.0.0",
+  "generated_at": 1755300169.45627,
+  "config": {
+    "region": "us-east-1",
+    "replicas": 1,
+    "health_check_url": "http://localhost:8080/health",
+    "timeout_seconds": 300
+  }
+}

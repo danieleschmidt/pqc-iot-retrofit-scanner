@@ -1,0 +1,108 @@
+{
+  "report_timestamp": 1755299479.5828016,
+  "summary": {
+    "total_errors": 3,
+    "severity_breakdown": {
+      "high": 1,
+      "critical": 1,
+      "medium": 1
+    },
+    "category_breakdown": {
+      "file_io": 1,
+      "memory_constraint": 1,
+      "crypto_detection": 1
+    },
+    "recent_errors": [
+      {
+        "error_id": "b94a9967",
+        "severity": "high",
+        "category": "file_io",
+        "message": "Firmware file missing: /path/to/firmware.bin"
+      },
+      {
+        "error_id": "74008c41",
+        "severity": "critical",
+        "category": "memory_constraint",
+        "message": "Insufficient flash memory: 32KB required, 16KB available"
+      },
+      {
+        "error_id": "2a9bfb9c",
+        "severity": "medium",
+        "category": "crypto_detection",
+        "message": "Ambiguous cryptographic pattern detected"
+      }
+    ],
+    "error_rate": 3.0
+  },
+  "detailed_errors": [
+    {
+      "error_id": "b94a9967",
+      "timestamp": 1755299479.5813289,
+      "severity": "ErrorSeverity.HIGH",
+      "category": "ErrorCategory.FILE_IO",
+      "message": "Firmware file missing: /path/to/firmware.bin",
+      "context": {
+        "file_path": "/path/to/firmware.bin",
+        "operation": "read"
+      },
+      "stack_trace": "Traceback (most recent call last):\n  File \"/root/repo/robust_error_handling.py\", line 447, in main\n    raise FileNotFoundError(\"Firmware file missing: /path/to/firmware.bin\")\nFileNotFoundError: Firmware file missing: /path/to/firmware.bin\n",
+      "mitigation": "Review error details and consult documentation for file_io issues",
+      "user_action": "HIGH: Review error and take corrective action"
+    },
+    {
+      "error_id": "74008c41",
+      "timestamp": 1755299479.582152,
+      "severity": "ErrorSeverity.CRITICAL",
+      "category": "ErrorCategory.MEMORY_CONSTRAINT",
+      "message": "Insufficient flash memory: 32KB required, 16KB available",
+      "context": {
+        "required_flash": 32768,
+        "available_flash": 16384
+      },
+      "stack_trace": "Traceback (most recent call last):\n  File \"/root/repo/robust_error_handling.py\", line 456, in main\n    raise ValueError(\"Insufficient flash memory: 32KB required, 16KB available\")\nValueError: Insufficient flash memory: 32KB required, 16KB available\n",
+      "mitigation": "Review error details and consult documentation for memory_constraint issues",
+      "user_action": "CRITICAL: Stop processing and address immediately"
+    },
+    {
+      "error_id": "2a9bfb9c",
+      "timestamp": 1755299479.582529,
+      "severity": "ErrorSeverity.MEDIUM",
+      "category": "ErrorCategory.CRYPTO_DETECTION",
+      "message": "Ambiguous cryptographic pattern detected",
+      "context": {
+        "pattern": "RSA-like",
+        "confidence": 0.65
+      },
+      "stack_trace": null,
+      "mitigation": "Review error details and consult documentation for crypto_detection issues",
+      "user_action": "MEDIUM: Monitor and address when convenient"
+    }
+  ],
+  "mitigation_applied": {
+    "firmware_analysis": {
+      "corrupt_firmware": "Verify file integrity and try alternative parsing methods",
+      "unsupported_architecture": "Use generic analysis mode or add architecture support",
+      "memory_limit_exceeded": "Process firmware in smaller chunks"
+    },
+    "crypto_detection": {
+      "false_positive": "Refine detection patterns and add validation",
+      "pattern_not_found": "Update signature database or use heuristic analysis",
+      "ambiguous_algorithm": "Use multiple detection methods for confirmation"
+    },
+    "patch_generation": {
+      "insufficient_memory": "Use lightweight PQC variants or hybrid mode",
+      "compilation_failed": "Check compiler compatibility and dependencies",
+      "patch_too_large": "Enable code compression and optimization"
+    },
+    "file_io": {
+      "permission_denied": "Check file permissions and run with appropriate privileges",
+      "file_not_found": "Verify file path and existence",
+      "disk_full": "Free up disk space or use temporary storage"
+    },
+    "memory_constraint": {
+      "flash_overflow": "Optimize code size or increase flash capacity",
+      "ram_overflow": "Use memory-efficient algorithms or external storage",
+      "stack_overflow": "Reduce recursion depth and optimize stack usage"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "deployment_id": "383ad661",
+  "environment": "production",
+  "version": "v2.0.0",
+  "generated_at": 1755300175.024805,
+  "config": {
+    "region": "us-east-1",
+    "replicas": 3,
+    "health_check_url": "https://api.example.com/health",
+    "timeout_seconds": 900,
+    "canary_percentage": 5
+  }
+}
