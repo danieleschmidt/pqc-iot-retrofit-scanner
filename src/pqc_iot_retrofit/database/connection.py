@@ -48,11 +48,9 @@ class DatabaseManager:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             firmware_id INTEGER NOT NULL,
             session_type TEXT NOT NULL, -- 'scan', 'patch', 'analyze'
-            configuration TEXT, -- JSON configuration
+            status TEXT DEFAULT 'pending',
             started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             completed_at TIMESTAMP,
-            status TEXT DEFAULT 'running', -- 'running', 'completed', 'failed'
-            error_message TEXT,
             FOREIGN KEY (firmware_id) REFERENCES firmware_metadata (id)
         );
         
@@ -60,78 +58,32 @@ class DatabaseManager:
         CREATE TABLE IF NOT EXISTS scan_results (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             session_id INTEGER NOT NULL,
-            total_vulnerabilities INTEGER NOT NULL,
-            critical_count INTEGER DEFAULT 0,
-            high_count INTEGER DEFAULT 0,
-            medium_count INTEGER DEFAULT 0,
-            low_count INTEGER DEFAULT 0,
-            scan_duration_ms INTEGER,
-            memory_constraints TEXT, -- JSON memory constraints
-            recommendations TEXT, -- JSON recommendations array
+            scan_type TEXT NOT NULL,
+            result_data TEXT, -- JSON data
+            risk_score REAL DEFAULT 0.0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (session_id) REFERENCES analysis_sessions (id)
         );
         
-        -- Vulnerability records table
-        CREATE TABLE IF NOT EXISTS vulnerability_records (
+        -- Vulnerabilities table
+        CREATE TABLE IF NOT EXISTS vulnerabilities (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            scan_result_id INTEGER NOT NULL,
+            session_id INTEGER NOT NULL,
             algorithm TEXT NOT NULL,
-            address INTEGER NOT NULL,
-            function_name TEXT NOT NULL,
-            risk_level TEXT NOT NULL,
-            key_size INTEGER,
-            description TEXT NOT NULL,
-            mitigation TEXT NOT NULL,
-            stack_usage INTEGER NOT NULL,
-            available_stack INTEGER NOT NULL,
+            address INTEGER,
+            severity TEXT DEFAULT 'medium',
+            description TEXT,
+            patchable BOOLEAN DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (scan_result_id) REFERENCES scan_results (id)
+            FOREIGN KEY (session_id) REFERENCES analysis_sessions (id)
         );
-        
-        -- Patch records table
-        CREATE TABLE IF NOT EXISTS patch_records (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            vulnerability_id INTEGER NOT NULL,
-            pqc_algorithm TEXT NOT NULL,
-            target_device TEXT NOT NULL,
-            security_level INTEGER NOT NULL,
-            optimization_level TEXT NOT NULL,
-            patch_size INTEGER NOT NULL,
-            metadata TEXT, -- JSON patch metadata
-            installation_script TEXT,
-            verification_hash TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (vulnerability_id) REFERENCES vulnerability_records (id)
-        );
-        
-        -- Cache table for performance optimization
-        CREATE TABLE IF NOT EXISTS analysis_cache (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            cache_key TEXT NOT NULL UNIQUE,
-            cache_data TEXT NOT NULL, -- JSON cached data
-            expires_at TIMESTAMP,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        
-        -- Indexes for performance
-        CREATE INDEX IF NOT EXISTS idx_firmware_hash ON firmware_metadata (file_hash);
-        CREATE INDEX IF NOT EXISTS idx_vulnerability_algorithm ON vulnerability_records (algorithm);
-        CREATE INDEX IF NOT EXISTS idx_vulnerability_risk ON vulnerability_records (risk_level);
-        CREATE INDEX IF NOT EXISTS idx_patch_algorithm ON patch_records (pqc_algorithm);
-        CREATE INDEX IF NOT EXISTS idx_cache_key ON analysis_cache (cache_key);
-        CREATE INDEX IF NOT EXISTS idx_sessions_firmware ON analysis_sessions (firmware_id);
         """
         
-        try:
-            with self.get_connection() as conn:
-                conn.executescript(schema_sql)
-                conn.commit()
-            self._initialized = True
-            logger.info(f"Database schema initialized: {self.db_path}")
-        except Exception as e:
-            logger.error(f"Failed to initialize database schema: {e}")
-            raise
+        with self.get_connection() as conn:
+            conn.executescript(schema_sql)
+            logger.info("Database schema initialized successfully")
+        
+        self._initialized = True
     
     @contextmanager
     def get_connection(self):
