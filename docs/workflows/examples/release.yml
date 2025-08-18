@@ -1,0 +1,441 @@
+# Release Management Workflow
+# Automates semantic versioning, changelog generation, and asset publishing
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
+        required: true
+      prerelease:
+        description: 'Mark as pre-release'
+        type: boolean
+        default: false
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "18"
+
+jobs:
+  # Validate release requirements
+  validate-release:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is-prerelease: ${{ steps.version.outputs.is-prerelease }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Extract version information
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+            IS_PRERELEASE="${{ github.event.inputs.prerelease }}"
+          else
+            # Extract from tag
+            VERSION=${GITHUB_REF#refs/tags/v}
+            # Check if it's a prerelease (contains alpha, beta, rc)
+            if [[ $VERSION =~ (alpha|beta|rc) ]]; then
+              IS_PRERELEASE=true
+            else
+              IS_PRERELEASE=false
+            fi
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "is-prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION, Pre-release: $IS_PRERELEASE"
+      
+      - name: Validate version format
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if ! [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+([+-][a-zA-Z0-9]+)*$ ]]; then
+            echo "Error: Invalid version format: $VERSION"
+            echo "Expected format: X.Y.Z or X.Y.Z-suffix"
+            exit 1
+          fi
+      
+      - name: Check if tag exists
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Error: Tag v$VERSION already exists"
+            exit 1
+          fi
+      
+      - name: Validate changelog entry
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if ! grep -q "## \[$VERSION\]" CHANGELOG.md; then
+            echo "Warning: No changelog entry found for version $VERSION"
+            echo "Please ensure CHANGELOG.md is updated before release"
+          fi
+
+  # Build and test release artifacts
+  build-release:
+    needs: validate-release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'docs/package-lock.json'
+      
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,analysis]"
+          pip install build twine
+      
+      - name: Update version in pyproject.toml
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          VERSION="${{ needs.validate-release.outputs.version }}"
+          sed -i "s/version = \".*\"/version = \"$VERSION\"/" pyproject.toml
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "chore: bump version to $VERSION"
+      
+      - name: Run full test suite
+        run: |
+          pytest -xvs --cov=src --cov-report=xml --cov-report=html
+          coverage report --fail-under=80
+      
+      - name: Run security scans
+        run: |
+          bandit -r src/ -f json -o bandit-report.json
+          safety check --json --output safety-report.json
+          # Don't fail on security issues for releases, but document them
+        continue-on-error: true
+      
+      - name: Generate SBOM
+        run: |
+          # Install SBOM generation tools
+          pip install cyclonedx-bom
+          cyclonedx-py --output sbom.json
+      
+      - name: Build Python packages
+        run: |
+          python -m build
+          
+          # Verify packages
+          python -m twine check dist/*
+          
+          # Generate checksums
+          cd dist/
+          sha256sum * > SHA256SUMS
+          cd ..
+      
+      - name: Build documentation
+        run: |
+          cd docs/
+          npm install
+          npm run build
+          cd ..
+      
+      - name: Build Docker images
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            terragon/pqc-iot-retrofit-scanner:${{ needs.validate-release.outputs.version }}
+            terragon/pqc-iot-retrofit-scanner:latest
+          labels: |
+            org.opencontainers.image.title=PQC IoT Retrofit Scanner
+            org.opencontainers.image.description=CLI tool for post-quantum cryptography retrofitting
+            org.opencontainers.image.version=${{ needs.validate-release.outputs.version }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          build-args: |
+            VERSION=${{ needs.validate-release.outputs.version }}
+            BUILD_DATE=${{ steps.date.outputs.date }}
+            VCS_REF=${{ github.sha }}
+      
+      - name: Sign Docker images
+        env:
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+        run: |
+          # Install cosign
+          curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64"
+          sudo mv cosign-linux-amd64 /usr/local/bin/cosign
+          sudo chmod +x /usr/local/bin/cosign
+          
+          # Sign images
+          echo "$COSIGN_PRIVATE_KEY" | cosign sign --key env://COSIGN_PRIVATE_KEY \
+            terragon/pqc-iot-retrofit-scanner:${{ needs.validate-release.outputs.version }}
+        continue-on-error: true
+      
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-artifacts
+          path: |
+            dist/
+            docs/build/
+            bandit-report.json
+            safety-report.json
+            sbom.json
+            htmlcov/
+          retention-days: 90
+
+  # Create GitHub release
+  create-release:
+    needs: [validate-release, build-release]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Download release artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: release-artifacts
+          path: ./artifacts
+      
+      - name: Generate release notes
+        id: release-notes
+        run: |
+          VERSION="${{ needs.validate-release.outputs.version }}"
+          
+          # Extract changelog section for this version
+          if grep -q "## \[$VERSION\]" CHANGELOG.md; then
+            # Extract content between version headers
+            RELEASE_NOTES=$(awk "/## \[$VERSION\]/{flag=1; next} /## \[/{flag=0} flag" CHANGELOG.md)
+          else
+            # Generate release notes from commits
+            PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+            if [ -n "$PREVIOUS_TAG" ]; then
+              RELEASE_NOTES=$(git log --pretty=format:"- %s (%h)" $PREVIOUS_TAG..HEAD)
+            else
+              RELEASE_NOTES="Initial release of PQC IoT Retrofit Scanner v$VERSION"
+            fi
+          fi
+          
+          # Add additional information
+          cat > release_notes.md << EOF
+          $RELEASE_NOTES
+          
+          ## 📦 Installation
+          
+          ### PyPI
+          \`\`\`bash
+          pip install pqc-iot-retrofit-scanner==$VERSION
+          \`\`\`
+          
+          ### Docker
+          \`\`\`bash
+          docker pull terragon/pqc-iot-retrofit-scanner:$VERSION
+          \`\`\`
+          
+          ## 🔒 Security
+          
+          This release includes comprehensive security scanning:
+          - ✅ SAST scanning with Bandit
+          - ✅ Dependency vulnerability scanning
+          - ✅ Software Bill of Materials (SBOM) generated
+          - ✅ Docker images signed with Cosign
+          
+          ## 📋 Checksums
+          
+          Package checksums are available in the SHA256SUMS file attached to this release.
+          
+          ## 🐛 Bug Reports
+          
+          If you encounter any issues, please report them at: https://github.com/${{ github.repository }}/issues
+          EOF
+          
+          echo "Generated release notes for version $VERSION"
+      
+      - name: Create Git tag
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          VERSION="${{ needs.validate-release.outputs.version }}"
+          git tag -a "v$VERSION" -m "Release version $VERSION"
+          git push origin "v$VERSION"
+      
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        id: create-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.validate-release.outputs.version }}
+          release_name: Release v${{ needs.validate-release.outputs.version }}
+          body_path: ./release_notes.md
+          draft: false
+          prerelease: ${{ needs.validate-release.outputs.is-prerelease }}
+      
+      - name: Upload Python packages
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./artifacts/dist/
+          asset_name: python-packages
+          asset_content_type: application/zip
+      
+      - name: Upload checksums
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./artifacts/dist/SHA256SUMS
+          asset_name: SHA256SUMS
+          asset_content_type: text/plain
+      
+      - name: Upload SBOM
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./artifacts/sbom.json
+          asset_name: sbom.json
+          asset_content_type: application/json
+      
+      - name: Upload security reports
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./artifacts/bandit-report.json
+          asset_name: security-scan-bandit.json
+          asset_content_type: application/json
+
+  # Publish to PyPI
+  publish-pypi:
+    needs: [validate-release, build-release, create-release]
+    runs-on: ubuntu-latest
+    if: needs.validate-release.outputs.is-prerelease == 'false'
+    environment:
+      name: pypi
+      url: https://pypi.org/project/pqc-iot-retrofit-scanner/
+    
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: release-artifacts
+          path: ./artifacts
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install publishing tools
+        run: |
+          python -m pip install --upgrade pip twine
+      
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          python -m twine upload artifacts/dist/*.whl artifacts/dist/*.tar.gz
+
+  # Post-release notifications and updates
+  post-release:
+    needs: [validate-release, create-release, publish-pypi]
+    runs-on: ubuntu-latest
+    if: always() && needs.create-release.result == 'success'
+    
+    steps:
+      - name: Notify team
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const version = "${{ needs.validate-release.outputs.version }}";
+            const isPrerelease = "${{ needs.validate-release.outputs.is-prerelease }}" === 'true';
+            const releaseType = isPrerelease ? 'pre-release' : 'release';
+            
+            // Create issue for post-release tasks
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Post-${releaseType} tasks for v${version}`,
+              body: `## Post-${releaseType} Checklist for v${version}
+              
+              - [ ] Update documentation website
+              - [ ] Notify users via announcement
+              - [ ] Update Docker Hub description
+              - [ ] Verify PyPI package availability
+              - [ ] Update integration examples
+              - [ ] Check monitoring dashboards
+              - [ ] Validate deployment to production
+              
+              Release URL: ${{ steps.create-release.outputs.html_url }}`,
+              labels: ['release', 'post-release-tasks']
+            });
+      
+      - name: Update repository topics
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.repos.replaceAllTopics({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              names: [
+                'post-quantum-cryptography',
+                'iot-security',
+                'firmware-analysis',
+                'security-scanner',
+                'python',
+                'cli-tool',
+                'docker',
+                'cryptography',
+                'vulnerability-scanner'
+              ]
+            });
+      
+      - name: Trigger documentation update
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: release-published
+          client-payload: '{"version": "${{ needs.validate-release.outputs.version }}"}'

@@ -1,0 +1,381 @@
+# Continuous Deployment Workflow
+# Automates building, testing, and deploying to different environments
+
+name: Continuous Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: terragon/pqc-iot-retrofit-scanner
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # Build and test before deployment
+  build-and-test:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      image-tag: ${{ steps.meta.outputs.tags }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for proper versioning
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,analysis]"
+      
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+      
+      - name: Run tests
+        run: |
+          pytest -xvs --cov=src --cov-report=xml --cov-report=html
+          
+      - name: Run security scans
+        run: |
+          bandit -r src/ -f json -o bandit-report.json
+          safety check --json --output safety-report.json
+        continue-on-error: true
+      
+      - name: Build Python package
+        run: |
+          python -m build
+          python -m twine check dist/*
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ steps.version.outputs.version }}
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ steps.version.outputs.version }}
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: |
+            dist/
+            bandit-report.json
+            safety-report.json
+            htmlcov/
+          retention-days: 30
+
+  # Deploy to staging environment
+  deploy-staging:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'staging'
+    environment:
+      name: staging
+      url: https://staging.pqc-scanner.example.com
+    
+    steps:
+      - name: Checkout deployment scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/deploy/
+            k8s/
+      
+      - name: Configure kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+      
+      - name: Deploy to staging
+        env:
+          KUBE_CONFIG: ${{ secrets.STAGING_KUBE_CONFIG }}
+          IMAGE_TAG: ${{ needs.build-and-test.outputs.version }}
+        run: |
+          echo "$KUBE_CONFIG" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+          
+          # Update image tag in deployment
+          sed -i "s|IMAGE_TAG|$IMAGE_TAG|g" k8s/staging/deployment.yaml
+          
+          # Apply Kubernetes manifests
+          kubectl apply -f k8s/staging/
+          
+          # Wait for rollout
+          kubectl rollout status deployment/pqc-scanner -n staging --timeout=300s
+          
+          # Verify deployment
+          kubectl get pods -n staging -l app=pqc-scanner
+      
+      - name: Run smoke tests
+        run: |
+          # Wait for service to be ready
+          sleep 30
+          
+          # Basic health check
+          curl -f https://staging.pqc-scanner.example.com/health || exit 1
+          
+          # API functionality test
+          curl -f -X POST https://staging.pqc-scanner.example.com/api/scan \
+            -H "Content-Type: application/json" \
+            -d '{"firmware_url": "https://example.com/test-firmware.bin", "architecture": "arm"}' || exit 1
+      
+      - name: Notify deployment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: context.payload.deployment.id,
+              state: 'success',
+              environment_url: 'https://staging.pqc-scanner.example.com',
+              description: 'Deployment successful'
+            });
+
+  # Deploy to production environment
+  deploy-production:
+    needs: [build-and-test, deploy-staging]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' || github.event.inputs.environment == 'production'
+    environment:
+      name: production
+      url: https://pqc-scanner.example.com
+    
+    steps:
+      - name: Checkout deployment scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/deploy/
+            k8s/
+      
+      - name: Configure kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+      
+      - name: Blue-Green Deployment
+        env:
+          KUBE_CONFIG: ${{ secrets.PROD_KUBE_CONFIG }}
+          IMAGE_TAG: ${{ needs.build-and-test.outputs.version }}
+        run: |
+          echo "$KUBE_CONFIG" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+          
+          # Determine current active environment
+          CURRENT_ENV=$(kubectl get service pqc-scanner-active -n production -o jsonpath='{.spec.selector.version}')
+          NEW_ENV=$([ "$CURRENT_ENV" = "blue" ] && echo "green" || echo "blue")
+          
+          echo "Current environment: $CURRENT_ENV"
+          echo "Deploying to: $NEW_ENV"
+          
+          # Update deployment for new environment
+          sed -i "s|IMAGE_TAG|$IMAGE_TAG|g" k8s/production/deployment-${NEW_ENV}.yaml
+          sed -i "s|VERSION_LABEL|$NEW_ENV|g" k8s/production/deployment-${NEW_ENV}.yaml
+          
+          # Deploy to new environment
+          kubectl apply -f k8s/production/deployment-${NEW_ENV}.yaml
+          kubectl rollout status deployment/pqc-scanner-${NEW_ENV} -n production --timeout=600s
+          
+          # Run production health checks
+          kubectl port-forward service/pqc-scanner-${NEW_ENV} 8080:80 -n production &
+          sleep 10
+          
+          # Comprehensive health checks
+          curl -f http://localhost:8080/health || exit 1
+          curl -f http://localhost:8080/metrics || exit 1
+          
+          # Switch traffic to new environment
+          kubectl patch service pqc-scanner-active -n production -p '{"spec":{"selector":{"version":"'$NEW_ENV'"}}}'
+          
+          echo "Traffic switched to $NEW_ENV environment"
+          
+          # Keep old environment running for rollback capability
+          echo "Previous environment ($CURRENT_ENV) kept for rollback"
+      
+      - name: Verify production deployment
+        run: |
+          # Wait for DNS propagation
+          sleep 60
+          
+          # Verify external endpoint
+          for i in {1..5}; do
+            if curl -f https://pqc-scanner.example.com/health; then
+              echo "Production health check passed"
+              break
+            fi
+            echo "Attempt $i failed, retrying..."
+            sleep 30
+          done
+          
+          # Performance test
+          curl -f https://pqc-scanner.example.com/api/version
+      
+      - name: Publish to PyPI
+        if: github.event_name == 'release'
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          # Download build artifacts
+          mkdir -p dist/
+          # Note: In real workflow, artifacts would be downloaded from build job
+          
+          # Publish to PyPI
+          python -m twine upload dist/* --username __token__ --password $PYPI_TOKEN
+      
+      - name: Update deployment status
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: context.payload.deployment.id,
+              state: 'success',
+              environment_url: 'https://pqc-scanner.example.com',
+              description: 'Production deployment successful'
+            });
+      
+      - name: Create deployment summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ needs.build-and-test.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image**: ${{ needs.build-and-test.outputs.image-tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://pqc-scanner.example.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Successful" >> $GITHUB_STEP_SUMMARY
+
+  # Rollback capability
+  rollback:
+    runs-on: ubuntu-latest
+    if: failure() && (github.event_name == 'release' || github.event.inputs.environment == 'production')
+    needs: [deploy-production]
+    environment:
+      name: production
+    
+    steps:
+      - name: Rollback production deployment
+        env:
+          KUBE_CONFIG: ${{ secrets.PROD_KUBE_CONFIG }}
+        run: |
+          echo "$KUBE_CONFIG" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+          
+          # Determine current and previous environments
+          CURRENT_ENV=$(kubectl get service pqc-scanner-active -n production -o jsonpath='{.spec.selector.version}')
+          PREVIOUS_ENV=$([ "$CURRENT_ENV" = "blue" ] && echo "green" || echo "blue")
+          
+          echo "Rolling back from $CURRENT_ENV to $PREVIOUS_ENV"
+          
+          # Switch traffic back to previous environment
+          kubectl patch service pqc-scanner-active -n production -p '{"spec":{"selector":{"version":"'$PREVIOUS_ENV'"}}}'
+          
+          # Verify rollback
+          sleep 30
+          curl -f https://pqc-scanner.example.com/health || exit 1
+          
+          echo "Rollback completed successfully"
+      
+      - name: Notify rollback
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Production deployment failed - Rollback executed',
+              body: 'Production deployment failed and automatic rollback was executed. Please investigate the deployment failure.',
+              labels: ['deployment', 'rollback', 'urgent']
+            });
+
+  # Security scanning post-deployment
+  post-deployment-security:
+    needs: [deploy-production]
+    runs-on: ubuntu-latest
+    if: success() && (github.event_name == 'release' || github.event.inputs.environment == 'production')
+    
+    steps:
+      - name: OWASP ZAP security scan
+        uses: zaproxy/action-full-scan@v0.7.0
+        with:
+          target: 'https://pqc-scanner.example.com'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+      
+      - name: Upload ZAP scan results
+        uses: actions/upload-artifact@v3
+        with:
+          name: zap-scan-results
+          path: report_html.html
+      
+      - name: Notify security team
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Post-deployment security scan failed',
+              body: 'Security scan of production deployment failed. Please review findings.',
+              labels: ['security', 'post-deployment']
+            });
