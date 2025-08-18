@@ -1,0 +1,190 @@
+# Docker Compose override file for local development
+# This file is automatically loaded by docker-compose and provides
+# development-specific configurations that override the base docker-compose.yml
+
+version: '3.8'
+
+services:
+  # Override development service for local development
+  pqc-dev:
+    environment:
+      # Enable hot reloading
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      # Development-specific settings
+      - PQC_DEBUG=1
+      - PQC_LOG_LEVEL=DEBUG
+      - PQC_DEV_MODE=1
+      # Allow access to host Docker daemon (for testing Docker builds)
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      # Mount Docker socket for docker-in-docker functionality
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Mount Git directory for version information
+      - ./.git:/app/.git:ro
+      # Mount additional development files
+      - ./scripts:/app/scripts:rw
+      - ./reports:/app/reports:rw
+      # Cache directories for better performance
+      - dev-pip-cache:/home/pqciot/.cache/pip
+      - dev-mypy-cache:/home/pqciot/.mypy_cache
+    # Expose additional ports for development tools
+    ports:
+      - "8080:8080"    # Main application port
+      - "3000:3000"    # Development server
+      - "5678:5678"    # Debug server (debugpy)
+    # Set resource limits for development
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # Override testing service for local testing
+  pqc-test:
+    environment:
+      - PYTEST_CURRENT_TEST=1
+      - PQC_TEST_MODE=1
+      # Enable test parallelization
+      - PYTEST_XDIST_WORKER_COUNT=auto
+    volumes:
+      # Mount test fixtures and data
+      - ./test-data:/app/test-data:ro
+      - ./firmware-samples:/app/firmware-samples:ro
+      # Persist test results
+      - ./test-results:/app/test-results:rw
+      - ./htmlcov:/app/htmlcov:rw
+    # Add test database
+    depends_on:
+      - pqc-test-db
+    command: >
+      bash -c "
+        echo 'Waiting for test database...' &&
+        dockerize -wait tcp://pqc-test-db:5432 -timeout 30s &&
+        pytest -v --junitxml=/app/test-results/junit.xml --cov-report=xml:/app/test-results/coverage.xml --cov-report=html:/app/htmlcov
+      "
+
+  # Add test-specific database
+  pqc-test-db:
+    image: postgres:15-alpine
+    container_name: pqc-iot-test-db
+    environment:
+      POSTGRES_DB: pqc_test
+      POSTGRES_USER: pqc_test_user
+      POSTGRES_PASSWORD: test_password
+    volumes:
+      - test-db-data:/var/lib/postgresql/data
+    networks:
+      - pqc-network
+    profiles:
+      - testing
+
+  # Override analysis service with additional tools
+  pqc-analysis:
+    environment:
+      # Jupyter configuration
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=pqc-analysis-token
+    volumes:
+      # Mount analysis notebooks and data
+      - ./notebooks:/app/notebooks:rw
+      - ./analysis-data:/app/analysis-data:rw
+      - ./firmware-samples:/app/firmware-samples:ro
+      # Persistent analysis cache
+      - analysis-workspace:/app/workspace
+    ports:
+      - "8888:8888"    # JupyterLab
+      - "8050:8050"    # Dash/Plotly apps
+    command: >
+      bash -c "
+        jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='pqc-analysis-token' --notebook-dir=/app/notebooks
+      "
+
+  # Override production service with healthcheck
+  pqc-prod:
+    healthcheck:
+      test: ["CMD", "python", "-c", "import pqc_iot_retrofit; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Production resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.1'
+
+  # Add security scanning service
+  pqc-security:
+    volumes:
+      # Mount additional security tools configuration
+      - ./.bandit:/app/.bandit:ro
+      - ./.secrets.baseline:/app/.secrets.baseline:ro
+    environment:
+      - SECURITY_SCAN_MODE=comprehensive
+    command: >
+      bash -c "
+        echo 'Running comprehensive security scans...' &&
+        mkdir -p /app/security-reports &&
+        echo 'Running Bandit security scan...' &&
+        bandit -r src/ -f json -o /app/security-reports/bandit.json &&
+        echo 'Running Safety dependency scan...' &&
+        safety check --json --output /app/security-reports/safety.json &&
+        echo 'Running secret detection...' &&
+        detect-secrets scan --baseline .secrets.baseline --all-files > /app/security-reports/secrets.json &&
+        echo 'Running license compliance check...' &&
+        pip-licenses --format=json --output-file=/app/security-reports/licenses.json &&
+        echo 'Security scans completed successfully'
+      "
+
+  # Add documentation service
+  pqc-docs:
+    environment:
+      - SPHINX_OPTS=-W --keep-going
+      - SPHINXOPTS=-n -W --keep-going
+    volumes:
+      # Mount source for API documentation generation
+      - ./src:/app/src:ro
+      # Persistent docs build cache
+      - docs-cache:/app/docs/.doctrees
+    ports:
+      - "8000:8000"    # Documentation server
+    command: >
+      bash -c "
+        cd /app/docs &&
+        pip install sphinx sphinx-autobuild sphinx-rtd-theme myst-parser &&
+        sphinx-autobuild . _build --host 0.0.0.0 --port 8000 --ignore '*.tmp'
+      "
+
+# Additional volumes for development
+volumes:
+  dev-pip-cache:
+    driver: local
+  dev-mypy-cache:
+    driver: local
+  test-db-data:
+    driver: local
+  analysis-workspace:
+    driver: local
+  docs-cache:
+    driver: local
+
+# Development-specific networks
+networks:
+  pqc-network:
+    # Enable better container communication in development
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1

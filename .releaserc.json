@@ -1,0 +1,168 @@
+{
+  "branches": [
+    "main",
+    "next",
+    {
+      "name": "beta",
+      "prerelease": true
+    },
+    {
+      "name": "alpha",
+      "prerelease": true
+    }
+  ],
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          {
+            "type": "docs",
+            "scope": "README",
+            "release": "patch"
+          },
+          {
+            "type": "refactor",
+            "scope": "core-*",
+            "release": "minor"
+          },
+          {
+            "type": "feat",
+            "scope": "security",
+            "release": "minor"
+          },
+          {
+            "breaking": true,
+            "release": "major"
+          }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            {
+              "type": "feat",
+              "section": "🚀 Features",
+              "hidden": false
+            },
+            {
+              "type": "fix",
+              "section": "🐛 Bug Fixes",
+              "hidden": false
+            },
+            {
+              "type": "perf",
+              "section": "⚡ Performance Improvements",
+              "hidden": false
+            },
+            {
+              "type": "docs",
+              "section": "📚 Documentation",
+              "hidden": false
+            },
+            {
+              "type": "style",
+              "section": "💎 Styles",
+              "hidden": true
+            },
+            {
+              "type": "refactor",
+              "section": "📦 Code Refactoring",
+              "hidden": false
+            },
+            {
+              "type": "test",
+              "section": "🧪 Tests",
+              "hidden": false
+            },
+            {
+              "type": "build",
+              "section": "🛠 Build System",
+              "hidden": false
+            },
+            {
+              "type": "ci",
+              "section": "⚙️ Continuous Integration",
+              "hidden": false
+            },
+            {
+              "type": "chore",
+              "section": "🔧 Chores",
+              "hidden": true
+            },
+            {
+              "type": "revert",
+              "section": "🗑 Reverts",
+              "hidden": false
+            }
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md",
+        "changelogTitle": "# Changelog\n\nAll notable changes to the PQC IoT Retrofit Scanner project will be documented in this file.\n\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n\n<!-- semantic-release -->",
+        "assets": ["CHANGELOG.md"]
+      }
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "python scripts/update_version.py ${nextRelease.version}",
+        "publishCmd": "python scripts/build.py --version ${nextRelease.version} --security --sbom --sign"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "dist/*.whl",
+            "label": "Python Wheel Package"
+          },
+          {
+            "path": "dist/*.tar.gz",
+            "label": "Python Source Package"
+          },
+          {
+            "path": "reports/checksums.txt",
+            "label": "Package Checksums"
+          },
+          {
+            "path": "reports/sbom-package.spdx.json",
+            "label": "SBOM (SPDX Format)"
+          },
+          {
+            "path": "reports/sbom-package.cyclonedx.json",
+            "label": "SBOM (CycloneDX Format)"
+          },
+          {
+            "path": "reports/security/bandit.json",
+            "label": "Security Scan Report"
+          }
+        ],
+        "successComment": "🎉 This issue has been resolved in version ${nextRelease.version} 🎉\n\nThe release is available on:\n- [GitHub Releases](${releases.filter(release => release.type === 'github')[0].url})\n- [PyPI](https://pypi.org/project/pqc-iot-retrofit-scanner/${nextRelease.version})\n- [Docker Hub](https://hub.docker.com/r/terragon/pqc-iot-retrofit-scanner/tags?page=1&name=${nextRelease.version})",
+        "failComment": "❌ The automatic release from branch `${branch.name}` has failed. Please check the [build logs](${env.BUILD_URL}) for more information.",
+        "releasedLabels": ["status: released"],
+        "addReleases": "bottom"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "CHANGELOG.md",
+          "pyproject.toml"
+        ],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ]
+  ]
+}

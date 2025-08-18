@@ -45,10 +45,15 @@ analysis = [
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
+    "pytest-xdist>=3.0",
+    "pytest-mock>=3.0",
     "black>=22.0",
     "ruff>=0.1",
     "mypy>=1.0",
     "pre-commit>=2.20",
+    "bandit[toml]>=1.7",
+    "safety>=2.0",
+    "pip-audit>=2.0",
 ]
 
 [project.urls]
@@ -82,4 +87,38 @@ disallow_untyped_defs = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
-addopts = "--cov=src --cov-report=html --cov-report=term-missing"
+addopts = "--cov=src --cov-report=html --cov-report=term-missing --strict-markers --strict-config"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "hardware: marks tests requiring hardware devices",
+    "security: marks security-focused tests"
+]
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning"
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/conftest.py",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/virtualenv/*"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:"
+]
