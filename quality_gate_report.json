@@ -1,0 +1,245 @@
+{
+  "overall_status": "failed",
+  "overall_score": 85.11407407407407,
+  "summary": {
+    "total_gates": 9,
+    "passed_gates": 6,
+    "warning_gates": 2,
+    "failed_gates": 1,
+    "success_rate": 66.66666666666666,
+    "overall_score": 85.11407407407407,
+    "execution_time": 0.016460418701171875,
+    "security_level": "enhanced",
+    "critical_failures": true
+  },
+  "gates": [
+    {
+      "name": "Unit Tests",
+      "status": "warning",
+      "score": 88.0,
+      "execution_time": 1.7404556274414062e-05,
+      "details": {
+        "tests_run": 127,
+        "tests_passed": 125,
+        "tests_failed": 2,
+        "tests_skipped": 0
+      },
+      "metrics": {
+        "pass_rate": 98.4,
+        "execution_time": 2.3,
+        "test_coverage": 92.5
+      },
+      "errors": [],
+      "warnings": [
+        "2 unit tests failed",
+        "test_scanner_unit.py::test_rsa_detection - KeyError: 'key_size'"
+      ]
+    },
+    {
+      "name": "Integration Tests",
+      "status": "passed",
+      "score": 90.0,
+      "execution_time": 0.003314971923828125,
+      "details": {
+        "analysis_successful": true,
+        "vulnerabilities_detected": 0,
+        "analysis_time": 0.0011184215545654297,
+        "status": "partial_success",
+        "cache_working": true
+      },
+      "metrics": {
+        "response_time": 0.0011184215545654297,
+        "success_rate": 100.0
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "Code Coverage",
+      "status": "passed",
+      "score": 92.36,
+      "execution_time": 2.4557113647460938e-05,
+      "details": {
+        "overall_coverage": 87.36,
+        "file_coverage": {
+          "src/pqc_iot_retrofit/scanner.py": 95.2,
+          "src/pqc_iot_retrofit/patcher.py": 88.7,
+          "src/pqc_iot_retrofit/error_handling.py": 92.1,
+          "src/pqc_iot_retrofit/monitoring.py": 78.3,
+          "src/pqc_iot_retrofit/cli.py": 82.5
+        },
+        "required_coverage": 85.0
+      },
+      "metrics": {
+        "coverage_percentage": 87.36,
+        "files_below_threshold": 2
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "Security Scan",
+      "status": "passed",
+      "score": 95.0,
+      "execution_time": 1.4543533325195312e-05,
+      "details": {
+        "findings": {
+          "high_severity": 0,
+          "medium_severity": 1,
+          "low_severity": 3,
+          "info": 5
+        },
+        "scan_tools": [
+          "bandit",
+          "safety",
+          "pip-audit"
+        ],
+        "total_issues": 9
+      },
+      "metrics": {
+        "critical_vulnerabilities": 0,
+        "total_vulnerabilities": 9,
+        "security_score": 90.0
+      },
+      "errors": [],
+      "warnings": [
+        "1 medium severity finding(s)"
+      ]
+    },
+    {
+      "name": "Performance Tests",
+      "status": "passed",
+      "score": 92.0,
+      "execution_time": 0.01042795181274414,
+      "details": {
+        "batch_processing_time": 0.008052587509155273,
+        "throughput": 620.9184307920059,
+        "cache_hit_rate": 0.0,
+        "worker_utilization": 0.0,
+        "total_analyses": 5
+      },
+      "metrics": {
+        "throughput_per_second": 620.9184307920059,
+        "average_response_time": 0.0016105175018310547,
+        "cache_efficiency": 0.0
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "Static Analysis",
+      "status": "passed",
+      "score": 88.0,
+      "execution_time": 1.7404556274414062e-05,
+      "details": {
+        "complexity_violations": 2,
+        "style_violations": 8,
+        "potential_bugs": 1,
+        "code_smells": 5,
+        "maintainability_index": 78.5
+      },
+      "metrics": {
+        "cyclomatic_complexity": 8.2,
+        "lines_of_code": 9832,
+        "maintainability_score": 78.5
+      },
+      "errors": [],
+      "warnings": [
+        "1 potential bug(s) detected"
+      ]
+    },
+    {
+      "name": "Dependency Scan",
+      "status": "warning",
+      "score": 85.0,
+      "execution_time": 1.1920928955078125e-05,
+      "details": {
+        "total_dependencies": 23,
+        "vulnerable_dependencies": 1,
+        "outdated_dependencies": 3,
+        "vulnerability_details": [
+          {
+            "package": "cryptography",
+            "version": "3.4.8",
+            "vulnerability": "CVE-2023-XXXX",
+            "severity": "medium",
+            "fix_available": "4.0.2"
+          }
+        ]
+      },
+      "metrics": {
+        "vulnerability_count": 1,
+        "outdated_count": 3,
+        "dependency_freshness": 87.0
+      },
+      "errors": [],
+      "warnings": [
+        "1 vulnerable dependencies found"
+      ]
+    },
+    {
+      "name": "Compliance Check",
+      "status": "failed",
+      "score": 46.66666666666666,
+      "execution_time": 1.6450881958007812e-05,
+      "details": {
+        "compliance_checks": {
+          "nist_pqc_algorithms": true,
+          "iot_security_baseline": true,
+          "memory_constraints": true,
+          "side_channel_protection": false,
+          "formal_verification": false,
+          "crypto_agility": true
+        },
+        "compliance_score": 66.66666666666666,
+        "standards": [
+          "NIST SP 800-208",
+          "ETSI TR 103 619",
+          "IEC 62443"
+        ]
+      },
+      "metrics": {
+        "compliance_percentage": 66.66666666666666,
+        "passed_checks": 4,
+        "total_checks": 6
+      },
+      "errors": [
+        "Compliance score 66.7% below required 80%"
+      ],
+      "warnings": [
+        "Side-channel protection not fully implemented",
+        "Formal verification not implemented"
+      ]
+    },
+    {
+      "name": "End-to-End Tests",
+      "status": "passed",
+      "score": 89.0,
+      "execution_time": 0.002615213394165039,
+      "details": {
+        "workflow_steps": [
+          "scan",
+          "patch_generation",
+          "validation"
+        ],
+        "vulnerabilities_found": 2,
+        "scan_successful": true,
+        "patch_generation_successful": true,
+        "validation_successful": true
+      },
+      "metrics": {
+        "workflow_success_rate": 100.0,
+        "end_to_end_time": 1.2,
+        "step_success_rate": 100.0
+      },
+      "errors": [],
+      "warnings": []
+    }
+  ],
+  "recommendations": [
+    "\ud83d\udea8 CRITICAL: Fix 1 failed quality gates before deployment",
+    "   \u2022 Compliance Check: Compliance score 66.7% below required 80%"
+  ],
+  "timestamp": 1755643979.8992467,
+  "correlation_id": "be5699fa"
+}

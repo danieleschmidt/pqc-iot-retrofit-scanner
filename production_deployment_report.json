@@ -1,0 +1,34 @@
+{
+  "deployment_id": "b4ff1a44",
+  "environment": "production",
+  "strategy": "blue_green",
+  "start_time": "2025-08-19T22:56:39.479831+00:00",
+  "end_time": "2025-08-19T22:56:39.496005+00:00",
+  "duration_seconds": 0.016174,
+  "status": "failed",
+  "success": false,
+  "rollback_performed": true,
+  "logs": [
+    "[2025-08-19 22:56:39 UTC] \ud83d\udd0d Phase 1: Pre-deployment validation",
+    "[2025-08-19 22:56:39 UTC]       \u2705 python_version",
+    "[2025-08-19 22:56:39 UTC]       \u2705 disk_space",
+    "[2025-08-19 22:56:39 UTC]       \u2705 memory_available",
+    "[2025-08-19 22:56:39 UTC]       \u2705 network_connectivity",
+    "[2025-08-19 22:56:39 UTC]       \u2705 dependencies",
+    "[2025-08-19 22:56:39 UTC]    \ud83d\udcca Pre-deployment validation: 100.0%",
+    "[2025-08-19 22:56:39 UTC] \ud83d\udee1\ufe0f Phase 2: Quality gates validation",
+    "[2025-08-19 22:56:39 UTC] \u274c Deployment failed: Quality gates failed",
+    "[2025-08-19 22:56:39 UTC]       \ud83d\udd04 Stop new deployment",
+    "[2025-08-19 22:56:40 UTC]       \ud83d\udd04 Restore previous version",
+    "[2025-08-19 22:56:40 UTC]       \ud83d\udd04 Update load balancer",
+    "[2025-08-19 22:56:40 UTC]       \ud83d\udd04 Verify rollback health",
+    "[2025-08-19 22:56:40 UTC]       \ud83d\udd04 Update monitoring",
+    "[2025-08-19 22:56:41 UTC]       \ud83d\udd04 Notify operations team",
+    "[2025-08-19 22:56:41 UTC]    \ud83d\udd04 Rollback completed successfully"
+  ],
+  "errors": [
+    "Quality gates failed - cannot deploy to production",
+    "Quality gates failed"
+  ],
+  "metrics": null
+}
