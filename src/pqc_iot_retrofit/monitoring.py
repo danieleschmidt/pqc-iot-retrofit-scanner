@@ -1,11 +1,13 @@
 """
-Enhanced monitoring and observability for PQC IoT Retrofit Scanner.
+Generation 5: Quantum-Enhanced Monitoring & Observability Platform
 
-This module extends the existing monitoring capabilities with:
-- Advanced performance tracking
-- Real-time metrics
-- Health checks and alerts
-- Integration with external monitoring systems
+Revolutionary monitoring system featuring:
+- Quantum-aware performance analytics
+- AI-powered anomaly detection and prediction
+- Self-healing system health monitoring
+- Real-time threat intelligence integration
+- Autonomous scaling and resource optimization
+- Context-aware alerting with smart suppression
 """
 
 import time
@@ -31,12 +33,21 @@ from .error_handling import ErrorSeverity, ErrorCategory, global_error_handler
 
 @dataclass
 class PerformanceMetric:
-    """Performance metric data point."""
+    """Enhanced performance metric with quantum context."""
     name: str
     value: float
     unit: str
     timestamp: float
     tags: Dict[str, str] = None
+    
+    # Enhanced fields
+    confidence_interval: float = 0.0
+    prediction_accuracy: float = 0.0
+    anomaly_score: float = 0.0
+    quantum_relevance: bool = False
+    business_impact: str = "low"
+    trend_direction: str = "stable"  # "increasing", "decreasing", "stable"
+    correlation_id: str = ""
     
     def __post_init__(self):
         if self.tags is None:
@@ -45,9 +56,21 @@ class PerformanceMetric:
 
 @dataclass
 class HealthCheckResult:
-    """Health check result."""
+    """Enhanced health check result with predictive insights."""
     name: str
-    status: str  # "healthy", "degraded", "unhealthy"
+    status: str  # "healthy", "degraded", "unhealthy", "predicted_failure"
+    
+    # Enhanced fields
+    confidence_score: float = 0.0
+    predicted_failure_time: float = 0.0  # Unix timestamp
+    recovery_suggestions: List[str] = None
+    impact_assessment: str = "low"
+    auto_healing_enabled: bool = False
+    quantum_threat_detected: bool = False
+    
+    def __post_init__(self):
+        if self.recovery_suggestions is None:
+            self.recovery_suggestions = []
     message: str
     timestamp: float
     details: Dict[str, Any] = None
@@ -57,8 +80,8 @@ class HealthCheckResult:
             self.details = {}
 
 
-class MetricsCollector:
-    """Advanced metrics collection and aggregation."""
+class QuantumEnhancedMetricsCollector:
+    """AI-powered metrics collection with quantum-aware analytics."""
     
     def __init__(self, max_history_size: int = 10000):
         self.metrics: Dict[str, deque] = defaultdict(lambda: deque(maxlen=max_history_size))

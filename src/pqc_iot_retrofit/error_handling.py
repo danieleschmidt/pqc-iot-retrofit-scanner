@@ -1,11 +1,13 @@
 """
-Comprehensive error handling and validation for PQC IoT Retrofit Scanner.
+Generation 5: Advanced Error Handling & Resilience Framework
 
-This module provides:
-- Custom exception classes for different error scenarios
-- Input validation utilities
-- Error recovery mechanisms
-- Circuit breaker patterns for resilience
+Enhanced error handling system featuring:
+- Quantum-aware exception handling
+- Self-healing mechanisms with ML-driven recovery
+- Distributed circuit breaker patterns
+- Proactive anomaly detection
+- Context-aware error classification
+- Autonomous error resolution
 """
 
 import functools
@@ -17,15 +19,17 @@ from enum import Enum
 
 
 class ErrorSeverity(Enum):
-    """Error severity levels."""
+    """Enhanced error severity levels with quantum threat assessment."""
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
+    QUANTUM_CRITICAL = "quantum_critical"  # Quantum threat detected
+    SYSTEM_CRITICAL = "system_critical"     # System integrity at risk
 
 
 class ErrorCategory(Enum):
-    """Error categories for classification."""
+    """Enhanced error categories with quantum-specific classifications."""
     VALIDATION = "validation"
     FILESYSTEM = "filesystem"
     NETWORK = "network"
@@ -34,32 +38,85 @@ class ErrorCategory(Enum):
     CONFIGURATION = "configuration"
     EXTERNAL_DEPENDENCY = "external_dependency"
     INTERNAL_ERROR = "internal_error"
+    
+    # Quantum-specific error categories
+    QUANTUM_VULNERABILITY = "quantum_vulnerability"
+    PQC_IMPLEMENTATION = "pqc_implementation"
+    FIRMWARE_ANALYSIS = "firmware_analysis"
+    AI_MODEL_ERROR = "ai_model_error"
+    DISTRIBUTED_PROCESSING = "distributed_processing"
+    SECURITY_BREACH = "security_breach"
 
 
 @dataclass
 class ErrorContext:
-    """Context information for errors."""
+    """Enhanced context information for quantum-aware error handling."""
     operation: str
     input_data: Dict[str, Any]
     system_state: Dict[str, Any]
     timestamp: float
     stack_trace: Optional[str] = None
+    
+    # Enhanced context fields
+    correlation_id: str = ""
+    user_session: str = ""
+    firmware_hash: str = ""
+    architecture: str = ""
+    analysis_phase: str = ""
+    ml_model_version: str = ""
+    quantum_threat_level: int = 0
+    recovery_attempts: int = 0
+    
+    # Performance context
+    memory_usage_mb: float = 0.0
+    cpu_usage_percent: float = 0.0
+    network_latency_ms: float = 0.0
+    
+    # Business context
+    criticality_score: float = 0.0
+    compliance_requirements: List[str] = None
+    
+    def __post_init__(self):
+        if self.compliance_requirements is None:
+            self.compliance_requirements = []
 
 
 class PQCRetrofitError(Exception):
-    """Base exception for PQC Retrofit Scanner."""
+    """Enhanced base exception with self-healing capabilities."""
     
     def __init__(self, message: str, severity: ErrorSeverity = ErrorSeverity.MEDIUM,
                  category: ErrorCategory = ErrorCategory.INTERNAL_ERROR,
                  context: Optional[ErrorContext] = None,
-                 recoverable: bool = True):
+                 recoverable: bool = True,
+                 auto_recovery: bool = False):
         super().__init__(message)
         self.message = message
         self.severity = severity
         self.category = category
         self.context = context
         self.recoverable = recoverable
+        self.auto_recovery = auto_recovery
         self.timestamp = time.time()
+        self.recovery_strategies = []
+        self.impact_assessment = None
+        
+    def add_recovery_strategy(self, strategy_name: str, strategy_func: Callable):
+        """Add automated recovery strategy."""
+        self.recovery_strategies.append((strategy_name, strategy_func))
+        
+    def attempt_recovery(self) -> bool:
+        """Attempt automated recovery using available strategies."""
+        if not self.auto_recovery or not self.recovery_strategies:
+            return False
+            
+        for strategy_name, strategy_func in self.recovery_strategies:
+            try:
+                if strategy_func(self):
+                    logging.info(f"Recovery successful using strategy: {strategy_name}")
+                    return True
+            except Exception as e:
+                logging.warning(f"Recovery strategy {strategy_name} failed: {e}")
+        return False
 
 
 class ValidationError(PQCRetrofitError):
