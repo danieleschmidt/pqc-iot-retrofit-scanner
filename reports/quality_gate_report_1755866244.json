@@ -1,0 +1,778 @@
+{
+  "report_metadata": {
+    "generated_at": 1755866244.476355,
+    "total_execution_time": 1.7992286682128906,
+    "quality_gates_executed": 8,
+    "overall_score": 0.5976518484083341,
+    "overall_status": "NEEDS_IMPROVEMENT"
+  },
+  "summary": {
+    "total_gates": 8,
+    "passed": 4,
+    "warning": 1,
+    "failed": 3,
+    "skipped": 0,
+    "success_rate": 0.5
+  },
+  "gate_results": [
+    {
+      "gate_name": "Code Import Validation",
+      "status": "failed",
+      "score": 0.19047619047619047,
+      "execution_time": 0.3743400573730469,
+      "recommendations_count": 3,
+      "error_message": ""
+    },
+    {
+      "gate_name": "Security Vulnerability Scan",
+      "status": "failed",
+      "score": 0.6714285714285715,
+      "execution_time": 0.9154622554779053,
+      "recommendations_count": 11,
+      "error_message": ""
+    },
+    {
+      "gate_name": "Performance Benchmarking",
+      "status": "failed",
+      "score": 0.0,
+      "execution_time": 0.0009047985076904297,
+      "recommendations_count": 0,
+      "error_message": "No module named 'psutil'"
+    },
+    {
+      "gate_name": "Code Quality Assessment",
+      "status": "warning",
+      "score": 0.7386313703412742,
+      "execution_time": 0.06217336654663086,
+      "recommendations_count": 4,
+      "error_message": ""
+    },
+    {
+      "gate_name": "Research Methodology Validation",
+      "status": "passed",
+      "score": 0.96,
+      "execution_time": 0.15409374237060547,
+      "recommendations_count": 1,
+      "error_message": ""
+    },
+    {
+      "gate_name": "Enterprise Readiness Check",
+      "status": "passed",
+      "score": 0.8,
+      "execution_time": 0.08855628967285156,
+      "recommendations_count": 5,
+      "error_message": ""
+    },
+    {
+      "gate_name": "Quantum Algorithm Validation",
+      "status": "passed",
+      "score": 1.0,
+      "execution_time": 0.06565117835998535,
+      "recommendations_count": 0,
+      "error_message": ""
+    },
+    {
+      "gate_name": "Production Deployment Readiness",
+      "status": "passed",
+      "score": 1.0,
+      "execution_time": 0.13610243797302246,
+      "recommendations_count": 0,
+      "error_message": ""
+    }
+  ],
+  "detailed_results": {
+    "Code Import Validation": {
+      "status": "failed",
+      "score": 0.19047619047619047,
+      "details": {
+        "total_files": 42,
+        "successful_imports": 8,
+        "failed_imports": [
+          "/root/repo/src/pqc_iot_retrofit/adaptive_ai.py",
+          "/root/repo/src/pqc_iot_retrofit/auto_scaling.py",
+          "/root/repo/src/pqc_iot_retrofit/autonomous_research.py",
+          "/root/repo/src/pqc_iot_retrofit/cli.py",
+          "/root/repo/src/pqc_iot_retrofit/cli_enhanced.py",
+          "/root/repo/src/pqc_iot_retrofit/cli_gen4.py",
+          "/root/repo/src/pqc_iot_retrofit/concurrency.py",
+          "/root/repo/src/pqc_iot_retrofit/distributed_computing.py",
+          "/root/repo/src/pqc_iot_retrofit/global_deployment.py",
+          "/root/repo/src/pqc_iot_retrofit/i18n.py",
+          "/root/repo/src/pqc_iot_retrofit/monitoring.py",
+          "/root/repo/src/pqc_iot_retrofit/optimized_scanner.py",
+          "/root/repo/src/pqc_iot_retrofit/patcher.py",
+          "/root/repo/src/pqc_iot_retrofit/performance.py",
+          "/root/repo/src/pqc_iot_retrofit/quantum_ml_analysis.py",
+          "/root/repo/src/pqc_iot_retrofit/quantum_resilience.py",
+          "/root/repo/src/pqc_iot_retrofit/realtime_security_orchestrator.py",
+          "/root/repo/src/pqc_iot_retrofit/research_breakthrough.py",
+          "/root/repo/src/pqc_iot_retrofit/resilient_processing.py",
+          "/root/repo/src/pqc_iot_retrofit/robust_scanner.py",
+          "/root/repo/src/pqc_iot_retrofit/scanner.py",
+          "/root/repo/src/pqc_iot_retrofit/security_enhanced.py",
+          "/root/repo/src/pqc_iot_retrofit/security_hardened.py",
+          "/root/repo/src/pqc_iot_retrofit/validation.py",
+          "/root/repo/src/pqc_iot_retrofit/enterprise_scaling_engine.py",
+          "/root/repo/src/pqc_iot_retrofit/advanced_pqc_engine.py",
+          "/root/repo/src/pqc_iot_retrofit/cache/analysis_cache.py",
+          "/root/repo/src/pqc_iot_retrofit/cache/cache_manager.py",
+          "/root/repo/src/pqc_iot_retrofit/cache/firmware_cache.py",
+          "/root/repo/src/pqc_iot_retrofit/database/repositories.py"
+        ],
+        "import_errors": [
+          "No module named 'numpy'",
+          "unmatched '}' (scanner.py, line 211)",
+          "No module named 'numpy'",
+          "No module named 'click'",
+          "No module named 'click'",
+          "No module named 'click'",
+          "unmatched '}' (scanner.py, line 211)",
+          "unmatched '}' (scanner.py, line 211)",
+          "No module named 'aiohttp'",
+          "unmatched '}' (scanner.py, line 211)",
+          "unmatched '}' (scanner.py, line 211)",
+          "unmatched '}' (scanner.py, line 211)",
+          "unmatched '}' (scanner.py, line 211)",
+          "unmatched '}' (scanner.py, line 211)",
+          "No module named 'numpy'",
+          "No module named 'numpy'",
+          "unmatched '}' (scanner.py, line 211)",
+          "No module named 'numpy'",
+          "unmatched '}' (scanner.py, line 211)",
+          "unmatched '}' (scanner.py, line 211)",
+          "unmatched '}' (scanner.py, line 211)",
+          "unmatched '}' (scanner.py, line 211)",
+          "unmatched '}' (scanner.py, line 211)",
+          "unmatched '}' (scanner.py, line 211)",
+          "No module named 'aiohttp'",
+          "unmatched '}' (scanner.py, line 211)",
+          "unmatched '}' (scanner.py, line 211)",
+          "unmatched '}' (scanner.py, line 211)",
+          "unmatched '}' (scanner.py, line 211)",
+          "unmatched '}' (scanner.py, line 211)"
+        ]
+      },
+      "recommendations": [
+        "Fix import errors in failed modules",
+        "Check for missing dependencies",
+        "Verify Python path configuration"
+      ],
+      "execution_time": 0.3743400573730469,
+      "error_message": ""
+    },
+    "Security Vulnerability Scan": {
+      "status": "failed",
+      "score": 0.6714285714285715,
+      "details": {
+        "hardcoded_secrets_scan": {
+          "score": 1.0,
+          "findings_count": 0,
+          "findings": [],
+          "recommendations": []
+        },
+        "dependency_vulnerabilities": {
+          "score": 0.8571428571428572,
+          "total_dependencies": 21,
+          "vulnerabilities_found": 3,
+          "vulnerabilities": [
+            {
+              "package": "pyyaml",
+              "current_spec": "pyyaml>=6.0",
+              "min_safe_version": "6.0"
+            },
+            {
+              "package": "requests",
+              "current_spec": "requests>=2.28.0",
+              "min_safe_version": "2.25.0"
+            },
+            {
+              "package": "cryptography",
+              "current_spec": "cryptography>=3.4.8",
+              "min_safe_version": "3.4.8"
+            }
+          ],
+          "recommendations": [
+            "Update vulnerable packages to safe versions",
+            "Regularly audit dependencies for vulnerabilities",
+            "Use dependency scanning tools in CI/CD"
+          ]
+        },
+        "code_injection_risks": {
+          "score": 0.0,
+          "findings_count": 5,
+          "findings": [
+            {
+              "file": "/root/repo/autonomous_quality_gates.py",
+              "type": "eval_usage",
+              "line": 376,
+              "context": "mmendations.extend([\n                \"Avoid using eval() and exec() functions\",\n                \"Use para"
+            },
+            {
+              "file": "/root/repo/autonomous_quality_gates.py",
+              "type": "exec_usage",
+              "line": 376,
+              "context": ".extend([\n                \"Avoid using eval() and exec() functions\",\n                \"Use parameterized q"
+            },
+            {
+              "file": "/root/repo/.terragon/autonomous-executor.py",
+              "type": "exec_usage",
+              "line": 21,
+              "context": "path(__file__)))\n\n# Import from current directory\nexec(open(os.path.join(os.path.dirname(__file__), 'valu"
+            },
+            {
+              "file": "/root/repo/scripts/technical-debt-tracker.py",
+              "type": "eval_usage",
+              "line": 327,
+              "context": "al_usage\",\n                \"description\": \"Use of eval() - potential security risk\",\n                \"sev"
+            },
+            {
+              "file": "/root/repo/scripts/technical-debt-tracker.py",
+              "type": "exec_usage",
+              "line": 334,
+              "context": "ec_usage\",\n                \"description\": \"Use of exec() - potential security risk\",\n                \"sev"
+            }
+          ],
+          "recommendations": [
+            "Avoid using eval() and exec() functions",
+            "Use parameterized queries and safe string formatting",
+            "Validate and sanitize all user inputs",
+            "Use subprocess with shell=False when possible"
+          ]
+        },
+        "crypto_implementation_security": {
+          "score": 0.5,
+          "crypto_issues": 18,
+          "issues": [
+            {
+              "file": "/root/repo/production_deployment.py",
+              "type": "weak_hash_md5",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/production_deployment.py",
+              "type": "weak_random",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/robust_error_handling.py",
+              "type": "weak_hash_md5",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/robust_error_handling.py",
+              "type": "weak_random",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/scalable_architecture.py",
+              "type": "weak_hash_md5",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/scalable_generation3_analyzer.py",
+              "type": "weak_hash_md5",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/simple_production_deployment.py",
+              "type": "weak_hash_md5",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/simple_production_deployment.py",
+              "type": "weak_random",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/tests/test_generation4_integration.py",
+              "type": "weak_random",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/src/pqc_iot_retrofit/autonomous_research.py",
+              "type": "weak_hash_md5",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/src/pqc_iot_retrofit/config.py",
+              "type": "weak_cipher",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/src/pqc_iot_retrofit/distributed_computing.py",
+              "type": "weak_cipher",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/src/pqc_iot_retrofit/i18n.py",
+              "type": "weak_cipher",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/src/pqc_iot_retrofit/optimized_scanner.py",
+              "type": "weak_hash_md5",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/src/pqc_iot_retrofit/performance.py",
+              "type": "weak_hash_md5",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/src/pqc_iot_retrofit/resilient_processing.py",
+              "type": "weak_cipher",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/src/pqc_iot_retrofit/cache/analysis_cache.py",
+              "type": "weak_hash_md5",
+              "severity": "high"
+            },
+            {
+              "file": "/root/repo/src/pqc_iot_retrofit/cache/cache_manager.py",
+              "type": "weak_hash_md5",
+              "severity": "high"
+            }
+          ],
+          "recommendations": [
+            "Replace weak cryptographic algorithms with strong alternatives",
+            "Use cryptographically secure random number generators",
+            "Implement post-quantum cryptography for future-proofing",
+            "Follow NIST cryptographic guidelines"
+          ]
+        },
+        "access_control_validation": {
+          "score": 1.0,
+          "auth_implementations": 8,
+          "api_files_count": 4,
+          "recommendations": []
+        }
+      },
+      "recommendations": [
+        "Update vulnerable packages to safe versions",
+        "Regularly audit dependencies for vulnerabilities",
+        "Use dependency scanning tools in CI/CD",
+        "Avoid using eval() and exec() functions",
+        "Use parameterized queries and safe string formatting",
+        "Validate and sanitize all user inputs",
+        "Use subprocess with shell=False when possible",
+        "Replace weak cryptographic algorithms with strong alternatives",
+        "Use cryptographically secure random number generators",
+        "Implement post-quantum cryptography for future-proofing",
+        "Follow NIST cryptographic guidelines"
+      ],
+      "execution_time": 0.9154622554779053,
+      "error_message": ""
+    },
+    "Performance Benchmarking": {
+      "status": "failed",
+      "score": 0.0,
+      "details": {},
+      "recommendations": [],
+      "execution_time": 0.0009047985076904297,
+      "error_message": "No module named 'psutil'"
+    },
+    "Code Quality Assessment": {
+      "status": "warning",
+      "score": 0.7386313703412742,
+      "details": {
+        "code_complexity": {
+          "score": 0.7874015748031495,
+          "metrics": {
+            "total_files": 42,
+            "total_lines": 26453,
+            "avg_lines_per_file": 629.8333333333334,
+            "functions_analyzed": 1016,
+            "complex_functions": 216
+          },
+          "recommendations": []
+        },
+        "documentation_coverage": {
+          "score": 0.864640140515886,
+          "metrics": {
+            "total_functions": 311,
+            "documented_functions": 208,
+            "total_classes": 227,
+            "documented_classes": 210,
+            "has_module_docstrings": 42,
+            "total_modules": 42
+          },
+          "function_documentation_ratio": 0.6688102893890675,
+          "class_documentation_ratio": 0.9251101321585903,
+          "module_documentation_ratio": 1.0,
+          "recommendations": []
+        },
+        "type_annotations": {
+          "score": 0.7401201285425207,
+          "metrics": {
+            "total_functions": 1016,
+            "typed_functions": 701,
+            "total_parameters": 1502,
+            "typed_parameters": 1187
+          },
+          "function_type_ratio": 0.6899606299212598,
+          "parameter_type_ratio": 0.7902796271637816,
+          "recommendations": []
+        },
+        "error_handling": {
+          "score": 0.41210611895592636,
+          "metrics": {
+            "total_functions": 1025,
+            "functions_with_error_handling": 177,
+            "bare_except_count": 5,
+            "specific_except_count": 166,
+            "custom_exceptions": 0
+          },
+          "recommendations": [
+            "Add proper error handling to functions that can fail",
+            "Use specific exception types instead of bare except clauses",
+            "Create custom exception classes for domain-specific errors",
+            "Add logging for error conditions"
+          ]
+        },
+        "code_structure": {
+          "score": 0.8888888888888888,
+          "metrics": {
+            "has_src_structure": true,
+            "has_tests_structure": true,
+            "has_docs_structure": true,
+            "has_requirements": true,
+            "has_setup_py": false,
+            "has_pyproject_toml": true,
+            "has_readme": true,
+            "has_license": true,
+            "has_gitignore": true
+          },
+          "recommendations": []
+        }
+      },
+      "recommendations": [
+        "Add proper error handling to functions that can fail",
+        "Use specific exception types instead of bare except clauses",
+        "Create custom exception classes for domain-specific errors",
+        "Add logging for error conditions"
+      ],
+      "execution_time": 0.06217336654663086,
+      "error_message": ""
+    },
+    "Research Methodology Validation": {
+      "status": "passed",
+      "score": 0.96,
+      "details": {
+        "experimental_design": {
+          "score": 1.0,
+          "criteria": {
+            "has_control_groups": true,
+            "has_statistical_tests": true,
+            "has_multiple_datasets": true,
+            "has_baseline_comparisons": true,
+            "has_performance_metrics": true
+          },
+          "recommendations": []
+        },
+        "statistical_rigor": {
+          "score": 1.0,
+          "indicators": {
+            "hypothesis_testing": true,
+            "confidence_intervals": true,
+            "effect_size": true,
+            "multiple_comparisons": true,
+            "power_analysis": true
+          },
+          "recommendations": []
+        },
+        "reproducibility": {
+          "score": 0.8,
+          "factors": {
+            "version_controlled": true,
+            "requirements_pinned": true,
+            "random_seeds_set": true,
+            "data_versioning": false,
+            "experiment_logging": true
+          },
+          "recommendations": [
+            "Implement data versioning for experimental datasets"
+          ]
+        },
+        "documentation_quality": {
+          "score": 1.0,
+          "elements": {
+            "methodology_documented": true,
+            "results_documented": true,
+            "limitations_discussed": true,
+            "future_work_outlined": true,
+            "related_work_cited": true
+          },
+          "recommendations": []
+        },
+        "novelty_assessment": {
+          "score": 1.0,
+          "indicators": {
+            "quantum_algorithms": true,
+            "machine_learning_hybrid": true,
+            "post_quantum_crypto": true,
+            "novel_architecture": true,
+            "performance_breakthrough": true
+          },
+          "recommendations": []
+        }
+      },
+      "recommendations": [
+        "Implement data versioning for experimental datasets"
+      ],
+      "execution_time": 0.15409374237060547,
+      "error_message": ""
+    },
+    "Enterprise Readiness Check": {
+      "status": "passed",
+      "score": 0.8,
+      "details": {
+        "scalability": {
+          "score": 1.0,
+          "features": {
+            "async_support": true,
+            "caching": true,
+            "load_balancing": true,
+            "horizontal_scaling": true,
+            "resource_pooling": true
+          },
+          "recommendations": []
+        },
+        "security": {
+          "score": 1.0,
+          "features": {
+            "authentication": true,
+            "authorization": true,
+            "encryption": true,
+            "audit_logging": true,
+            "rate_limiting": true
+          },
+          "recommendations": []
+        },
+        "monitoring": {
+          "score": 1.0,
+          "features": {
+            "metrics_collection": true,
+            "health_checks": true,
+            "alerting": true,
+            "tracing": true,
+            "dashboards": true
+          },
+          "recommendations": []
+        },
+        "configuration": {
+          "score": 0.8,
+          "features": {
+            "environment_variables": true,
+            "config_files": false,
+            "secrets_management": true,
+            "environment_separation": true,
+            "validation": true
+          },
+          "recommendations": []
+        },
+        "deployment": {
+          "score": 0.2,
+          "features": {
+            "containerization": true,
+            "orchestration": false,
+            "ci_cd": false,
+            "infrastructure_as_code": false,
+            "backup_recovery": false
+          },
+          "recommendations": [
+            "Add Docker containerization",
+            "Set up Kubernetes orchestration",
+            "Implement CI/CD pipelines",
+            "Use infrastructure as code",
+            "Plan backup and recovery procedures"
+          ]
+        }
+      },
+      "recommendations": [
+        "Add Docker containerization",
+        "Set up Kubernetes orchestration",
+        "Implement CI/CD pipelines",
+        "Use infrastructure as code",
+        "Plan backup and recovery procedures"
+      ],
+      "execution_time": 0.08855628967285156,
+      "error_message": ""
+    },
+    "Quantum Algorithm Validation": {
+      "status": "passed",
+      "score": 1.0,
+      "details": {
+        "quantum_correctness": {
+          "score": 1.0,
+          "checks": {
+            "state_normalization": true,
+            "unitary_operations": true,
+            "measurement_probabilities": true,
+            "quantum_gates": true,
+            "circuit_depth": true
+          },
+          "recommendations": []
+        },
+        "entanglement_utilization": {
+          "score": 1.0,
+          "features": {
+            "entanglement_generation": true,
+            "entanglement_measurement": true,
+            "bell_states": true,
+            "multi_qubit_gates": true,
+            "entanglement_entropy": true
+          },
+          "recommendations": []
+        },
+        "decoherence_handling": {
+          "score": 1.0,
+          "features": {
+            "coherence_time": true,
+            "noise_modeling": true,
+            "error_rates": true,
+            "decoherence_mitigation": true,
+            "fidelity_tracking": true
+          },
+          "recommendations": []
+        },
+        "quantum_advantage": {
+          "score": 1.0,
+          "indicators": {
+            "speedup_measurement": true,
+            "classical_comparison": true,
+            "complexity_analysis": true,
+            "resource_comparison": true,
+            "scalability_analysis": true
+          },
+          "recommendations": []
+        },
+        "error_correction": {
+          "score": 1.0,
+          "features": {
+            "error_detection": true,
+            "error_correction": true,
+            "syndrome_extraction": true,
+            "logical_qubits": true,
+            "fault_tolerance": true
+          },
+          "recommendations": []
+        }
+      },
+      "recommendations": [],
+      "execution_time": 0.06565117835998535,
+      "error_message": ""
+    },
+    "Production Deployment Readiness": {
+      "status": "passed",
+      "score": 1.0,
+      "details": {
+        "performance_requirements": {
+          "score": 1.0,
+          "criteria": {
+            "response_time_targets": true,
+            "throughput_requirements": true,
+            "resource_limits": true,
+            "scalability_targets": true,
+            "benchmarking_results": true
+          },
+          "recommendations": []
+        },
+        "reliability_features": {
+          "score": 1.0,
+          "features": {
+            "error_handling": true,
+            "circuit_breakers": true,
+            "retry_mechanisms": true,
+            "graceful_degradation": true,
+            "health_monitoring": true
+          },
+          "recommendations": []
+        },
+        "security_hardening": {
+          "score": 1.0,
+          "features": {
+            "input_validation": true,
+            "output_encoding": true,
+            "secure_defaults": true,
+            "principle_of_least_privilege": true,
+            "security_headers": true
+          },
+          "recommendations": []
+        },
+        "operational_procedures": {
+          "score": 1.0,
+          "features": {
+            "deployment_procedures": true,
+            "rollback_procedures": true,
+            "monitoring_runbooks": true,
+            "incident_response": true,
+            "maintenance_procedures": true
+          },
+          "recommendations": []
+        },
+        "compliance_readiness": {
+          "score": 1.0,
+          "features": {
+            "data_protection": true,
+            "audit_trails": true,
+            "regulatory_compliance": true,
+            "documentation_standards": true,
+            "change_management": true
+          },
+          "recommendations": []
+        }
+      },
+      "recommendations": [],
+      "execution_time": 0.13610243797302246,
+      "error_message": ""
+    }
+  },
+  "recommendations": {
+    "high_priority": [
+      "Check for missing dependencies",
+      "Verify Python path configuration",
+      "Fix import errors in failed modules"
+    ],
+    "medium_priority": [
+      "Update vulnerable packages to safe versions",
+      "Add proper error handling to functions that can fail",
+      "Add logging for error conditions",
+      "Validate and sanitize all user inputs",
+      "Implement post-quantum cryptography for future-proofing",
+      "Use specific exception types instead of bare except clauses",
+      "Avoid using eval() and exec() functions",
+      "Use dependency scanning tools in CI/CD",
+      "Replace weak cryptographic algorithms with strong alternatives",
+      "Use parameterized queries and safe string formatting",
+      "Use subprocess with shell=False when possible",
+      "Create custom exception classes for domain-specific errors",
+      "Use cryptographically secure random number generators",
+      "Follow NIST cryptographic guidelines",
+      "Regularly audit dependencies for vulnerabilities"
+    ],
+    "low_priority": [
+      "Use infrastructure as code",
+      "Implement CI/CD pipelines",
+      "Plan backup and recovery procedures",
+      "Implement data versioning for experimental datasets",
+      "Add Docker containerization",
+      "Set up Kubernetes orchestration"
+    ],
+    "total_recommendations": 24
+  },
+  "next_steps": [
+    "\ud83d\udea8 CRITICAL: Address all failed quality gates before proceeding",
+    "Focus on security vulnerabilities and code quality issues",
+    "\ud83d\udd12 Fix security issues in Security Vulnerability Scan",
+    "\u26a1 Optimize performance in Performance Benchmarking",
+    "\ud83d\udcc8 Implement continuous quality monitoring",
+    "\ud83d\udd04 Schedule regular quality gate assessments"
+  ],
+  "compliance_status": {
+    "production_ready": false,
+    "research_valid": true,
+    "security_compliant": false,
+    "performance_acceptable": false
+  }
+}
