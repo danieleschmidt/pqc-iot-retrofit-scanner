@@ -59,6 +59,8 @@ class HealthCheckResult:
     """Enhanced health check result with predictive insights."""
     name: str
     status: str  # "healthy", "degraded", "unhealthy", "predicted_failure"
+    message: str = ""
+    timestamp: float = 0.0
     
     # Enhanced fields
     confidence_score: float = 0.0
@@ -67,15 +69,11 @@ class HealthCheckResult:
     impact_assessment: str = "low"
     auto_healing_enabled: bool = False
     quantum_threat_detected: bool = False
+    details: Dict[str, Any] = None
     
     def __post_init__(self):
         if self.recovery_suggestions is None:
             self.recovery_suggestions = []
-    message: str
-    timestamp: float
-    details: Dict[str, Any] = None
-    
-    def __post_init__(self):
         if self.details is None:
             self.details = {}
 
@@ -246,7 +244,7 @@ class QuantumEnhancedMetricsCollector:
 class HealthMonitor:
     """System health monitoring with checks and alerts."""
     
-    def __init__(self, metrics_collector: MetricsCollector):
+    def __init__(self, metrics_collector: QuantumEnhancedMetricsCollector):
         self.metrics = metrics_collector
         self.health_checks: Dict[str, Callable] = {}
         self.alert_thresholds: Dict[str, Dict] = {}
@@ -568,7 +566,7 @@ class AlertManager:
 class MonitoringDashboard:
     """Simple monitoring dashboard and reporting."""
     
-    def __init__(self, metrics_collector: MetricsCollector, health_monitor: HealthMonitor):
+    def __init__(self, metrics_collector: QuantumEnhancedMetricsCollector, health_monitor: HealthMonitor):
         self.metrics = metrics_collector
         self.health_monitor = health_monitor
     
@@ -659,7 +657,7 @@ class MonitoringDashboard:
 
 
 # Global monitoring instances
-metrics_collector = MetricsCollector()
+metrics_collector = QuantumEnhancedMetricsCollector()
 health_monitor = HealthMonitor(metrics_collector)
 alert_manager = AlertManager(health_monitor)
 dashboard = MonitoringDashboard(metrics_collector, health_monitor)
