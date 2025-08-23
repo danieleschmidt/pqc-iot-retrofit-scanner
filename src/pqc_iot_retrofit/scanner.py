@@ -11,6 +11,7 @@ import struct
 import re
 import hashlib
 import time
+import math
 from typing import List, Dict, Any, Optional, Tuple, Set, Union
 from pathlib import Path
 from dataclasses import dataclass, field
@@ -206,9 +207,6 @@ class FirmwareScanner:
         self.scan_start_time = None
         self.vulnerabilities_found = 0
         self.scan_statistics = defaultdict(int)
-        b'\x01\x23\x45\x67': 'MD5-H0',
-        b'\x89\xAB\xCD\xEF': 'MD5-H1',
-    }
     
     CRYPTO_FUNCTION_PATTERNS = {
         'rsa_sign': [
