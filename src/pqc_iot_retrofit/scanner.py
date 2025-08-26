@@ -208,6 +208,7 @@ class FirmwareScanner:
         self.vulnerabilities_found = 0
         self.scan_statistics = defaultdict(int)
     
+    
     CRYPTO_FUNCTION_PATTERNS = {
         'rsa_sign': [
             b'RSA.*sign',

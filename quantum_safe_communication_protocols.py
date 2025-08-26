@@ -777,7 +777,7 @@ class QuantumSafeDeviceAttestationProtocol(QuantumSafeCommunicationProtocol):
         # Extract device identity if validation passes
         if validation_result["valid"]:
             validation_result["device_identity"] = {
-                "device_id": f"device_{hashlib.md5(str(attestation_response).encode()).hexdigest()[:8]}",
+                "device_id": f"device_{hashlib.sha256(str(attestation_response).encode()).hexdigest()[:8]}",
                 "manufacturer": "TrustedIoT Corp",
                 "model": "SecureDevice v2.0",
                 "firmware_version": "v2.4.1-pqc",

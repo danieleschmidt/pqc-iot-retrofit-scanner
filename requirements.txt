@@ -1,12 +1,13 @@
 # Production Requirements for PQC IoT Retrofit Scanner
 # 🤖 Generated with Claude Code (https://claude.ai/code)
+# Updated with secure dependency versions
 
 # Core dependencies
 click>=8.0.0
 pyyaml>=6.0
-requests>=2.28.0
-cryptography>=3.4.8
-pycryptodome>=3.15.0
+requests>=2.31.0  # Updated for security fixes
+cryptography>=44.0.1  # Updated to fix CVE-2024-12797 and other vulnerabilities
+pycryptodome>=3.19.1  # Updated to fix CVE-2023-52323 side-channel vulnerability
 
 # Optional performance dependencies
 psutil>=5.9.0  # System monitoring

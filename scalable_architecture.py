@@ -249,7 +249,7 @@ class ParallelProcessor:
         
         # Simulate finding vulnerabilities based on file characteristics
         file_size = os.path.getsize(firmware_path)
-        file_hash = hashlib.md5(firmware_path.encode()).hexdigest()[:8]
+        file_hash = hashlib.sha256(firmware_path.encode()).hexdigest()[:8]
         
         if file_size > 1000:  # Larger files more likely to have vulnerabilities
             vulnerabilities.append({

@@ -1,9 +1,9 @@
 {
   "report_metadata": {
-    "generated_at": 1756213405.7509725,
-    "total_execution_time": 2.6997554302215576,
+    "generated_at": 1756212868.5777292,
+    "total_execution_time": 2.835559844970703,
     "quality_gates_executed": 8,
-    "overall_score": 0.8125181884016486,
+    "overall_score": 0.8182587111068178,
     "overall_status": "GOOD"
   },
   "summary": {
@@ -18,8 +18,8 @@
     {
       "gate_name": "Code Import Validation",
       "status": "warning",
-      "score": 0.84,
-      "execution_time": 0.47971677780151367,
+      "score": 0.8367346938775511,
+      "execution_time": 0.7806785106658936,
       "recommendations_count": 3,
       "error_message": ""
     },
@@ -27,23 +27,23 @@
       "gate_name": "Security Vulnerability Scan",
       "status": "failed",
       "score": 0.6314285714285715,
-      "execution_time": 1.3042750358581543,
+      "execution_time": 1.2728800773620605,
       "recommendations_count": 15,
       "error_message": ""
     },
     {
       "gate_name": "Performance Benchmarking",
       "status": "passed",
-      "score": 0.8363666666666667,
-      "execution_time": 0.0054166316986083984,
+      "score": 0.8782592592592593,
+      "execution_time": 0.005698204040527344,
       "recommendations_count": 3,
       "error_message": ""
     },
     {
       "gate_name": "Code Quality Assessment",
       "status": "warning",
-      "score": 0.7385164941062273,
-      "execution_time": 0.09456872940063477,
+      "score": 0.73815935900388,
+      "execution_time": 0.08995556831359863,
       "recommendations_count": 4,
       "error_message": ""
     },
@@ -51,7 +51,7 @@
       "gate_name": "Research Methodology Validation",
       "status": "passed",
       "score": 0.96,
-      "execution_time": 0.27200984954833984,
+      "execution_time": 0.22716593742370605,
       "recommendations_count": 1,
       "error_message": ""
     },
@@ -59,7 +59,7 @@
       "gate_name": "Enterprise Readiness Check",
       "status": "passed",
       "score": 0.8,
-      "execution_time": 0.16326403617858887,
+      "execution_time": 0.1355757713317871,
       "recommendations_count": 5,
       "error_message": ""
     },
@@ -67,7 +67,7 @@
       "gate_name": "Quantum Algorithm Validation",
       "status": "passed",
       "score": 1.0,
-      "execution_time": 0.1326134204864502,
+      "execution_time": 0.11272978782653809,
       "recommendations_count": 0,
       "error_message": ""
     },
@@ -75,7 +75,7 @@
       "gate_name": "Production Deployment Readiness",
       "status": "passed",
       "score": 1.0,
-      "execution_time": 0.24545860290527344,
+      "execution_time": 0.2090437412261963,
       "recommendations_count": 0,
       "error_message": ""
     }
@@ -83,10 +83,10 @@
   "detailed_results": {
     "Code Import Validation": {
       "status": "warning",
-      "score": 0.84,
+      "score": 0.8367346938775511,
       "details": {
-        "total_files": 50,
-        "successful_imports": 42,
+        "total_files": 49,
+        "successful_imports": 41,
         "failed_imports": [
           "/root/repo/src/pqc_iot_retrofit/cli.py",
           "/root/repo/src/pqc_iot_retrofit/cli_basic.py",
@@ -105,7 +105,7 @@
         "Check for missing dependencies",
         "Verify Python path configuration"
       ],
-      "execution_time": 0.47971677780151367,
+      "execution_time": 0.7806785106658936,
       "error_message": ""
     },
     "Security Vulnerability Scan": {
@@ -212,7 +212,7 @@
         },
         "crypto_implementation_security": {
           "score": 0.5,
-          "crypto_issues": 12,
+          "crypto_issues": 11,
           "issues": [
             {
               "file": "/root/repo/autonomous_bug_discovery_system.py",
@@ -268,11 +268,6 @@
               "file": "/root/repo/src/pqc_iot_retrofit/resilient_processing.py",
               "type": "weak_cipher",
               "severity": "high"
-            },
-            {
-              "file": "/root/repo/src/pqc_iot_retrofit/generation6_quantum_security_research.py",
-              "type": "weak_random",
-              "severity": "high"
             }
           ],
           "recommendations": [
@@ -284,7 +279,7 @@
         },
         "access_control_validation": {
           "score": 1.0,
-          "auth_implementations": 18,
+          "auth_implementations": 17,
           "api_files_count": 5,
           "recommendations": []
         }
@@ -306,16 +301,16 @@
         "Implement post-quantum cryptography for future-proofing",
         "Follow NIST cryptographic guidelines"
       ],
-      "execution_time": 1.3042750358581543,
+      "execution_time": 1.2728800773620605,
       "error_message": ""
     },
     "Performance Benchmarking": {
       "status": "passed",
-      "score": 0.8363666666666667,
+      "score": 0.8782592592592593,
       "details": {
         "import_performance": {
           "score": 1.0,
-          "total_import_time": 5.984306335449219e-05,
+          "total_import_time": 5.53131103515625e-05,
           "average_import_time": 0.0,
           "import_times": {},
           "failed_imports": [
@@ -340,16 +335,16 @@
         },
         "algorithm_performance": {
           "score": 1.0,
-          "total_benchmark_time": 0.0005767345428466797,
+          "total_benchmark_time": 0.0005450248718261719,
           "benchmarks": {
             "pattern_scanning": {
-              "time": 0.00029015541076660156,
-              "throughput": 344642.892358258,
+              "time": 0.00031256675720214844,
+              "throughput": 319931.6552250191,
               "patterns_found": 0
             },
             "crypto_analysis": {
-              "time": 0.0002865791320800781,
-              "throughput": 174471.8801996672
+              "time": 0.00023245811462402344,
+              "throughput": 215092.5128205128
             }
           },
           "recommendations": []
@@ -361,7 +356,7 @@
           "recommendations": []
         },
         "scalability_test": {
-          "score": 0.3454666666666667,
+          "score": 0.513037037037037,
           "data_sizes_kb": [
             1,
             10,
@@ -369,12 +364,12 @@
             1000
           ],
           "processing_times": [
-            9.5367431640625e-06,
+            6.4373016357421875e-06,
             3.147125244140625e-05,
-            0.0003421306610107422,
-            0.003315448760986328
+            0.0003559589385986328,
+            0.003201007843017578
           ],
-          "linearity_score": 0.3454666666666667,
+          "linearity_score": 0.513037037037037,
           "recommendations": [
             "Improve algorithm scalability for large datasets",
             "Implement efficient data structures",
@@ -387,58 +382,58 @@
         "Implement efficient data structures",
         "Consider streaming processing for large files"
       ],
-      "execution_time": 0.0054166316986083984,
+      "execution_time": 0.005698204040527344,
       "error_message": ""
     },
     "Code Quality Assessment": {
       "status": "warning",
-      "score": 0.7385164941062273,
+      "score": 0.73815935900388,
       "details": {
         "code_complexity": {
-          "score": 0.7975,
+          "score": 0.795221843003413,
           "metrics": {
-            "total_files": 50,
-            "total_lines": 31604,
-            "avg_lines_per_file": 632.08,
-            "functions_analyzed": 1200,
-            "complex_functions": 243
+            "total_files": 49,
+            "total_lines": 30671,
+            "avg_lines_per_file": 625.9387755102041,
+            "functions_analyzed": 1172,
+            "complex_functions": 240
           },
           "recommendations": []
         },
         "documentation_coverage": {
-          "score": 0.8603183252730285,
+          "score": 0.8599436392914654,
           "metrics": {
-            "total_functions": 371,
-            "documented_functions": 245,
-            "total_classes": 277,
-            "documented_classes": 255,
-            "has_module_docstrings": 50,
-            "total_modules": 50
+            "total_functions": 368,
+            "documented_functions": 242,
+            "total_classes": 270,
+            "documented_classes": 249,
+            "has_module_docstrings": 49,
+            "total_modules": 49
           },
-          "function_documentation_ratio": 0.660377358490566,
-          "class_documentation_ratio": 0.9205776173285198,
+          "function_documentation_ratio": 0.657608695652174,
+          "class_documentation_ratio": 0.9222222222222223,
           "module_documentation_ratio": 1.0,
           "recommendations": []
         },
         "type_annotations": {
-          "score": 0.7329451488423373,
+          "score": 0.7328494397431702,
           "metrics": {
-            "total_functions": 1200,
-            "typed_functions": 825,
-            "total_parameters": 1814,
-            "typed_parameters": 1412
+            "total_functions": 1172,
+            "typed_functions": 800,
+            "total_parameters": 1752,
+            "typed_parameters": 1372
           },
-          "function_type_ratio": 0.6875,
-          "parameter_type_ratio": 0.7783902976846747,
+          "function_type_ratio": 0.6825938566552902,
+          "parameter_type_ratio": 0.7831050228310502,
           "recommendations": []
         },
         "error_handling": {
-          "score": 0.4129301075268817,
+          "score": 0.4138929840924623,
           "metrics": {
-            "total_functions": 1209,
-            "functions_with_error_handling": 208,
+            "total_functions": 1181,
+            "functions_with_error_handling": 205,
             "bare_except_count": 5,
-            "specific_except_count": 195,
+            "specific_except_count": 192,
             "custom_exceptions": 0
           },
           "recommendations": [
@@ -470,7 +465,7 @@
         "Create custom exception classes for domain-specific errors",
         "Add logging for error conditions"
       ],
-      "execution_time": 0.09456872940063477,
+      "execution_time": 0.08995556831359863,
       "error_message": ""
     },
     "Research Methodology Validation": {
@@ -538,7 +533,7 @@
       "recommendations": [
         "Implement data versioning for experimental datasets"
       ],
-      "execution_time": 0.27200984954833984,
+      "execution_time": 0.22716593742370605,
       "error_message": ""
     },
     "Enterprise Readiness Check": {
@@ -614,7 +609,7 @@
         "Use infrastructure as code",
         "Plan backup and recovery procedures"
       ],
-      "execution_time": 0.16326403617858887,
+      "execution_time": 0.1355757713317871,
       "error_message": ""
     },
     "Quantum Algorithm Validation": {
@@ -678,7 +673,7 @@
         }
       },
       "recommendations": [],
-      "execution_time": 0.1326134204864502,
+      "execution_time": 0.11272978782653809,
       "error_message": ""
     },
     "Production Deployment Readiness": {
@@ -742,45 +737,45 @@
         }
       },
       "recommendations": [],
-      "execution_time": 0.24545860290527344,
+      "execution_time": 0.2090437412261963,
       "error_message": ""
     }
   },
   "recommendations": {
     "high_priority": [],
     "medium_priority": [
-      "Use specific exception types instead of bare except clauses",
-      "Implement secure secret management system",
-      "Use dependency scanning tools in CI/CD",
-      "Use cryptographically secure random number generators",
-      "Avoid using eval() and exec() functions",
-      "Add logging for error conditions",
-      "Add proper error handling to functions that can fail",
-      "Regularly audit dependencies for vulnerabilities",
-      "Create custom exception classes for domain-specific errors",
       "Use parameterized queries and safe string formatting",
-      "Update vulnerable packages to safe versions",
-      "Add pre-commit hooks to prevent secret commits",
+      "Use specific exception types instead of bare except clauses",
+      "Use dependency scanning tools in CI/CD",
       "Implement post-quantum cryptography for future-proofing",
       "Remove hardcoded secrets from source code",
-      "Use environment variables for sensitive configuration",
+      "Add pre-commit hooks to prevent secret commits",
+      "Avoid using eval() and exec() functions",
       "Use subprocess with shell=False when possible",
-      "Validate and sanitize all user inputs",
+      "Replace weak cryptographic algorithms with strong alternatives",
+      "Add logging for error conditions",
+      "Add proper error handling to functions that can fail",
+      "Use environment variables for sensitive configuration",
       "Follow NIST cryptographic guidelines",
-      "Replace weak cryptographic algorithms with strong alternatives"
+      "Create custom exception classes for domain-specific errors",
+      "Implement secure secret management system",
+      "Update vulnerable packages to safe versions",
+      "Validate and sanitize all user inputs",
+      "Regularly audit dependencies for vulnerabilities",
+      "Use cryptographically secure random number generators"
     ],
     "low_priority": [
-      "Implement CI/CD pipelines",
       "Fix import errors in failed modules",
       "Use infrastructure as code",
       "Verify Python path configuration",
-      "Implement efficient data structures",
-      "Set up Kubernetes orchestration",
-      "Check for missing dependencies",
-      "Consider streaming processing for large files",
-      "Add Docker containerization",
       "Implement data versioning for experimental datasets",
+      "Add Docker containerization",
+      "Set up Kubernetes orchestration",
+      "Implement CI/CD pipelines",
       "Plan backup and recovery procedures",
+      "Consider streaming processing for large files",
+      "Check for missing dependencies",
+      "Implement efficient data structures",
       "Improve algorithm scalability for large datasets"
     ],
     "total_recommendations": 31

@@ -373,7 +373,7 @@ class CacheManager:
         # This would pre-calculate common analysis results
         # For demonstration, just log the action
         for path in firmware_paths[:5]:  # Limit to first 5 files
-            cache_key = f"firmware_metadata_{hashlib.md5(path.encode()).hexdigest()}"
+            cache_key = f"firmware_metadata_{hashlib.sha256(path.encode()).hexdigest()}"
             
             # Check if already cached
             if self.get(cache_key) is None:

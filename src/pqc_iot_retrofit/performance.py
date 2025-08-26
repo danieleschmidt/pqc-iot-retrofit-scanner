@@ -404,7 +404,7 @@ class PerformanceOptimizer:
         def optimized_wrapper(self, firmware_path: str, base_address: int = 0):
             # Generate cache key
             firmware_stat = Path(firmware_path).stat()
-            cache_key = hashlib.md5(
+            cache_key = hashlib.sha256(
                 f"{firmware_path}:{firmware_stat.st_mtime}:{firmware_stat.st_size}:{base_address}".encode()
             ).hexdigest()
             
@@ -440,7 +440,7 @@ class PerformanceOptimizer:
         @wraps(generator_func)
         def optimized_wrapper(self, optimization: str = "balanced"):
             # Generate cache key based on algorithm, architecture, and optimization
-            cache_key = hashlib.md5(
+            cache_key = hashlib.sha256(
                 f"{self.__class__.__name__}:{self.target_arch}:{optimization}".encode()
             ).hexdigest()
             
@@ -614,7 +614,7 @@ def cached_result(ttl: int = 3600, tags: Optional[Dict[str, str]] = None):
         def wrapper(*args, **kwargs):
             # Generate cache key
             key_data = f"{func.__module__}.{func.__name__}:{args}:{sorted(kwargs.items())}"
-            cache_key = hashlib.md5(key_data.encode()).hexdigest()
+            cache_key = hashlib.sha256(key_data.encode()).hexdigest()
             
             # Try cache
             result = performance_optimizer.cache.get(cache_key)

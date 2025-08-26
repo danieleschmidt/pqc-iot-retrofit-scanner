@@ -110,7 +110,7 @@ class IntelligentCache:
         
         # L2 Disk cache
         if self.config.enable_disk_cache:
-            cache_file = self.l2_cache_dir / f"{hashlib.md5(key.encode()).hexdigest()}.cache"
+            cache_file = self.l2_cache_dir / f"{hashlib.sha256(key.encode()).hexdigest()}.cache"
             if cache_file.exists():
                 try:
                     with open(cache_file, 'rb') as f:
@@ -134,7 +134,7 @@ class IntelligentCache:
         
         # Store in L2 for persistence
         if self.config.enable_disk_cache:
-            cache_file = self.l2_cache_dir / f"{hashlib.md5(key.encode()).hexdigest()}.cache"
+            cache_file = self.l2_cache_dir / f"{hashlib.sha256(key.encode()).hexdigest()}.cache"
             try:
                 with open(cache_file, 'wb') as f:
                     pickle.dump(value, f)
@@ -415,11 +415,11 @@ class ScalableFirmwareAnalyzer:
                 "v3"  # Cache version
             ]
             
-            return hashlib.md5("|".join(cache_components).encode()).hexdigest()
+            return hashlib.sha256("|".join(cache_components).encode()).hexdigest()
             
         except Exception:
             # Fallback cache key
-            return hashlib.md5(f"{firmware_path}|{self.architecture}".encode()).hexdigest()
+            return hashlib.sha256(f"{firmware_path}|{self.architecture}".encode()).hexdigest()
     
     def _batch_optimized_analysis(self, firmware_path: str) -> Optional[RobustAnalysisResult]:
         """Optimized for batch processing - prioritize throughput."""

@@ -206,7 +206,7 @@ class RealTimeThreatIntelligenceSystem:
                 "threat_actor": random.choice(["APT29", "APT40", "Lazarus", "Unknown"]),
                 "target_sectors": ["Critical Manufacturing", "Energy", "Water"],
                 "attack_vector": random.choice(["supply_chain", "firmware_implant", "ota_hijack"]),
-                "indicators": [f"hash_{hashlib.md5(str(random.random()).encode()).hexdigest()[:8]}"],
+                "indicators": [f"hash_{hashlib.sha256(str(random.random()).encode()).hexdigest()[:8]}"],
                 "urgency": random.choice(["high", "critical"])
             }
             for _ in range(random.randint(0, 3))
@@ -430,7 +430,7 @@ class RealTimeThreatIntelligenceSystem:
                 return f"{source}_{threat_item[id_field]}"
         
         # Generate ID from content hash
-        content_hash = hashlib.md5(str(threat_item).encode()).hexdigest()[:12]
+        content_hash = hashlib.sha256(str(threat_item).encode()).hexdigest()[:12]
         return f"{source}_{content_hash}"
     
     def _classify_threat_type(self, threat_item: Dict[str, Any]) -> str:

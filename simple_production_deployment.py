@@ -235,7 +235,7 @@ WantedBy=multi-user.target
             raise ValueError(f"Environment '{environment}' not configured")
         
         # Generate deployment ID
-        deployment_id = hashlib.md5(
+        deployment_id = hashlib.sha256(
             f"{environment}_{version}_{time.time()}".encode()
         ).hexdigest()[:8]
         

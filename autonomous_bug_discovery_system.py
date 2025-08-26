@@ -204,7 +204,7 @@ class AutonomousBugDiscoverySystem:
         for func_type in security_functions:
             if random.random() > 0.7:  # 30% chance of finding bug
                 bug = DiscoveredBug(
-                    bug_id=f"fv_{hashlib.md5(func_type.encode()).hexdigest()[:8]}",
+                    bug_id=f"fv_{hashlib.sha256(func_type.encode()).hexdigest()[:8]}",
                     bug_type="formal_verification_violation",
                     severity=random.choice([BugSeverity.MAJOR, BugSeverity.CRITICAL]),
                     confidence=random.uniform(0.85, 0.98),
@@ -241,7 +241,7 @@ class AutonomousBugDiscoverySystem:
         for target in fuzz_targets:
             if random.random() > 0.6:  # 40% chance of finding bug
                 bug = DiscoveredBug(
-                    bug_id=f"fuzz_{hashlib.md5(target.encode()).hexdigest()[:8]}",
+                    bug_id=f"fuzz_{hashlib.sha256(target.encode()).hexdigest()[:8]}",
                     bug_type="input_handling_error",
                     severity=random.choice([BugSeverity.MINOR, BugSeverity.MAJOR, BugSeverity.CRITICAL]),
                     confidence=random.uniform(0.75, 0.92),
@@ -283,7 +283,7 @@ class AutonomousBugDiscoverySystem:
         for issue_type in semantic_issues:
             if random.random() > 0.8:  # 20% chance
                 bug = DiscoveredBug(
-                    bug_id=f"sem_{hashlib.md5(issue_type.encode()).hexdigest()[:8]}",
+                    bug_id=f"sem_{hashlib.sha256(issue_type.encode()).hexdigest()[:8]}",
                     bug_type="semantic_inconsistency",
                     severity=BugSeverity.MINOR,
                     confidence=random.uniform(0.65, 0.85),
@@ -331,7 +331,7 @@ class AutonomousBugDiscoverySystem:
                 }
                 
                 bug = DiscoveredBug(
-                    bug_id=f"df_{hashlib.md5(issue_type.encode()).hexdigest()[:8]}",
+                    bug_id=f"df_{hashlib.sha256(issue_type.encode()).hexdigest()[:8]}",
                     bug_type="data_flow_violation",
                     severity=severity_map.get(issue_type, BugSeverity.MAJOR),
                     confidence=random.uniform(0.80, 0.95),
@@ -381,7 +381,7 @@ class AutonomousBugDiscoverySystem:
                 }
                 
                 bug = DiscoveredBug(
-                    bug_id=f"cf_{hashlib.md5(issue_type.encode()).hexdigest()[:8]}",
+                    bug_id=f"cf_{hashlib.sha256(issue_type.encode()).hexdigest()[:8]}",
                     bug_type="control_flow_anomaly",
                     severity=severity_map.get(issue_type, BugSeverity.MAJOR),
                     confidence=random.uniform(0.78, 0.93),
@@ -444,7 +444,7 @@ class AutonomousBugDiscoverySystem:
         ]
         
         signature_string = "|".join(signature_components)
-        return hashlib.md5(signature_string.encode()).hexdigest()[:16]
+        return hashlib.sha256(signature_string.encode()).hexdigest()[:16]
     
     async def generate_autonomous_patches(self, bugs: List[DiscoveredBug]) -> List[AutonomousPatch]:
         """Generate autonomous patches for discovered bugs."""
@@ -776,7 +776,7 @@ class StaticCodeAnalyzer:
                 findings = check_function(tree)
                 for finding in findings:
                     bug = DiscoveredBug(
-                        bug_id=f"sec_{hashlib.md5(f'{file_path}_{check_name}_{finding}'.encode()).hexdigest()[:8]}",
+                        bug_id=f"sec_{hashlib.sha256(f'{file_path}_{check_name}_{finding}'.encode()).hexdigest()[:8]}",
                         bug_type=check_name,
                         severity=BugSeverity.SECURITY,
                         confidence=random.uniform(0.80, 0.95),
@@ -901,7 +901,7 @@ class StaticCodeAnalyzer:
         # Convert performance issues to bugs
         for issue in performance_issues:
             bug = DiscoveredBug(
-                bug_id=f"perf_{hashlib.md5(f'{file_path}_{issue}'.encode()).hexdigest()[:8]}",
+                bug_id=f"perf_{hashlib.sha256(f'{file_path}_{issue}'.encode()).hexdigest()[:8]}",
                 bug_type="performance_antipattern",
                 severity=BugSeverity.MINOR,
                 confidence=random.uniform(0.70, 0.85),
@@ -959,7 +959,7 @@ class StaticCodeAnalyzer:
             }
             
             bug = DiscoveredBug(
-                bug_id=f"logic_{hashlib.md5(f'{file_path}_{issue}'.encode()).hexdigest()[:8]}",
+                bug_id=f"logic_{hashlib.sha256(f'{file_path}_{issue}'.encode()).hexdigest()[:8]}",
                 bug_type="logic_error",
                 severity=severity_map.get(issue["type"], BugSeverity.MINOR),
                 confidence=random.uniform(0.75, 0.90),
@@ -1018,7 +1018,7 @@ class DynamicAnalysisEngine:
         for finding in dynamic_findings:
             if random.random() > 0.6:  # 40% chance of detection
                 bug = DiscoveredBug(
-                    bug_id=f"dyn_{hashlib.md5(str(finding).encode()).hexdigest()[:8]}",
+                    bug_id=f"dyn_{hashlib.sha256(str(finding).encode()).hexdigest()[:8]}",
                     bug_type=finding["type"],
                     severity=finding["severity"],
                     confidence=random.uniform(0.85, 0.95),
@@ -1077,7 +1077,7 @@ class MLBugDetector:
         for pattern in ml_patterns:
             if random.random() > 0.5:  # 50% detection rate
                 bug = DiscoveredBug(
-                    bug_id=f"ml_{hashlib.md5(pattern['pattern_name'].encode()).hexdigest()[:8]}",
+                    bug_id=f"ml_{hashlib.sha256(pattern['pattern_name'].encode()).hexdigest()[:8]}",
                     bug_type=pattern["bug_type"],
                     severity=pattern["severity"],
                     confidence=pattern["confidence"],
