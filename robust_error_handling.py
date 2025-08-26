@@ -126,7 +126,7 @@ class RobustErrorHandler:
             context = {}
         
         # Generate unique error ID
-        error_id = hashlib.md5(
+        error_id = hashlib.sha256(
             f"{str(error)}{time.time()}{category.value}".encode()
         ).hexdigest()[:8]
         

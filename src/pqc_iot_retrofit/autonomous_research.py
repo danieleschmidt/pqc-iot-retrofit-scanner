@@ -469,7 +469,7 @@ class BenchmarkingSuite:
             parameters.get('optimization', 'unknown'),
             str(parameters.get('security_level', 1))
         ]
-        return hashlib.md5('|'.join(key_parts).encode()).hexdigest()
+        return hashlib.sha256('|'.join(key_parts).encode()).hexdigest()
     
     def _benchmark_key_generation(self, algorithm: str, platform: str) -> Dict[str, float]:
         """Benchmark key generation performance."""

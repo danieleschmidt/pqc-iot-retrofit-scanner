@@ -52,7 +52,7 @@ class IntelligentCache:
         try:
             with open(firmware_path, 'rb') as f:
                 file_data = f.read(1024)  # First 1KB for speed
-                file_hash = hashlib.md5(file_data).hexdigest()[:16]
+                file_hash = hashlib.sha256(file_data).hexdigest()[:16]
         except:
             file_hash = "unknown"
         

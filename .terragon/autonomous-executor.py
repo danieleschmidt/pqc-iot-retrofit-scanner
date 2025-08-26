@@ -17,8 +17,18 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# Import from current directory
-exec(open(os.path.join(os.path.dirname(__file__), 'value_discovery.py')).read())
+# Import from current directory using safe import instead of exec()
+import importlib.util
+
+value_discovery_path = os.path.join(os.path.dirname(__file__), 'value_discovery.py')
+spec = importlib.util.spec_from_file_location("value_discovery", value_discovery_path)
+value_discovery = importlib.util.module_from_spec(spec)
+sys.modules["value_discovery"] = value_discovery
+spec.loader.exec_module(value_discovery)
+
+# Import the classes we need
+WorkItem = value_discovery.WorkItem
+ValueDiscoveryEngine = value_discovery.ValueDiscoveryEngine
 
 
 @dataclass

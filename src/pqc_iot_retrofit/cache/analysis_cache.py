@@ -58,7 +58,7 @@ class AnalysisCache:
             Cache key for scan results
         """
         file_hash = self.get_firmware_hash(firmware_path)
-        constraints_hash = hashlib.md5(str(memory_constraints or {}).encode()).hexdigest()[:8]
+        constraints_hash = hashlib.sha256(str(memory_constraints or {}).encode()).hexdigest()[:8]
         
         return f"{self.key_prefix}scan:{file_hash}:{architecture}:{base_address:x}:{constraints_hash}"
     
@@ -158,7 +158,7 @@ class AnalysisCache:
             Cache key for disassembly results
         """
         file_hash = self.get_firmware_hash(firmware_path)
-        section_hash = hashlib.md5(f"{section_offset}:{section_size}".encode()).hexdigest()[:8]
+        section_hash = hashlib.sha256(f"{section_offset}:{section_size}".encode()).hexdigest()[:8]
         
         return f"{self.key_prefix}disasm:{file_hash}:{architecture}:{section_hash}"
     
@@ -226,7 +226,7 @@ class AnalysisCache:
             Cache key for patch template
         """
         key_data = f"{vulnerability_algorithm}:{target_device}:{security_level}:{optimization_level}"
-        key_hash = hashlib.md5(key_data.encode()).hexdigest()
+        key_hash = hashlib.sha256(key_data.encode()).hexdigest()
         
         return f"{self.key_prefix}patch_template:{key_hash}"
     
