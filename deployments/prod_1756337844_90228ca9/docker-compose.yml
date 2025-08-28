@@ -1,0 +1,109 @@
+version:
+  3.8
+services:
+  progressive_quality_gates:
+    build:
+      context:
+        .
+      dockerfile:
+        docker/Dockerfile
+    container_name:
+      pqc_progressive_quality_gates
+    environment:
+      - COMPONENT_NAME=progressive_quality_gates
+      - COMPONENT_VERSION=1.0.0
+      - ENVIRONMENT=production
+    networks:
+      - pqc_network
+    restart:
+      unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - import sys; sys.exit(0)
+      interval:
+        30s
+      timeout:
+        10s
+      retries:
+        3
+      start_period:
+        40s
+    ports:
+      - 8080:8080
+  autonomous_reliability_engine:
+    build:
+      context:
+        .
+      dockerfile:
+        docker/Dockerfile
+    container_name:
+      pqc_autonomous_reliability_engine
+    environment:
+      - COMPONENT_NAME=autonomous_reliability_engine
+      - COMPONENT_VERSION=2.0.0
+      - ENVIRONMENT=production
+    networks:
+      - pqc_network
+    restart:
+      unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - import sys; sys.exit(0)
+      interval:
+        30s
+      timeout:
+        10s
+      retries:
+        3
+      start_period:
+        40s
+    ports:
+      - 8081:8081
+    depends_on:
+      - progressive_quality_gates
+  quantum_performance_optimizer:
+    build:
+      context:
+        .
+      dockerfile:
+        docker/Dockerfile
+    container_name:
+      pqc_quantum_performance_optimizer
+    environment:
+      - COMPONENT_NAME=quantum_performance_optimizer
+      - COMPONENT_VERSION=3.0.0
+      - ENVIRONMENT=production
+    networks:
+      - pqc_network
+    restart:
+      unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - import sys; sys.exit(0)
+      interval:
+        30s
+      timeout:
+        10s
+      retries:
+        3
+      start_period:
+        40s
+    ports:
+      - 8082:8082
+    depends_on:
+      - autonomous_reliability_engine
+networks:
+  pqc_network:
+    driver:
+      bridge
+volumes:
+  pqc_data:
