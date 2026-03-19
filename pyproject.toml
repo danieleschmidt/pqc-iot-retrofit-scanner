@@ -4,16 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pqc-iot-retrofit-scanner"
-version = "0.1.0"
-description = "CLI + GitHub Action that audits embedded firmware and suggests post-quantum cryptography drop-ins"
+version = "1.0.0"
+description = "CLI tool that audits IoT firmware and code for quantum-vulnerable cryptography and recommends PQC replacements"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-    {name = "Daniel Schmidt", email = "daniel@terragon.ai"}
+    {name = "Daniel Schmidt"}
 ]
-keywords = ["post-quantum", "cryptography", "iot", "firmware", "security"]
+keywords = ["post-quantum", "cryptography", "pqc", "iot", "firmware", "security", "nist"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
@@ -21,104 +21,29 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Security :: Cryptography",
     "Topic :: Software Development :: Embedded Systems",
 ]
 requires-python = ">=3.8"
 dependencies = [
     "click>=8.0",
-    "cryptography>=3.4",
-    "pyyaml>=6.0",
-    "requests>=2.25",
-    "rich>=10.0",
-    "capstone>=4.0",
-    "keystone-engine>=0.9",
-    "lief>=0.12",
 ]
 
+[project.scripts]
+pqc-scan = "pqc_iot_retrofit.cli:main"
+
 [project.optional-dependencies]
-analysis = [
-    "angr>=9.2",
-    "r2pipe>=1.7",
-    "ghidra-bridge>=0.3",
-]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
-    "pytest-xdist>=3.0",
-    "pytest-mock>=3.0",
-    "black>=22.0",
-    "ruff>=0.1",
-    "mypy>=1.0",
-    "pre-commit>=2.20",
-    "bandit[toml]>=1.7",
-    "safety>=2.0",
-    "pip-audit>=2.0",
 ]
-
-[project.urls]
-Homepage = "https://github.com/terragon-ai/pqc-iot-retrofit-scanner"
-Documentation = "https://pqc-iot-retrofit.readthedocs.io"
-Repository = "https://github.com/terragon-ai/pqc-iot-retrofit-scanner"
-Issues = "https://github.com/terragon-ai/pqc-iot-retrofit-scanner/issues"
-
-[project.scripts]
-pqc-iot = "pqc_iot_retrofit.cli:main"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
-[tool.black]
-line-length = 88
-target-version = ['py38']
-
-[tool.ruff]
-select = ["E", "F", "W", "I", "N", "D", "UP", "B", "S"]
-ignore = ["D100", "D101", "D102", "D103", "D104", "D105"]
-line-length = 88
-target-version = "py38"
-
-[tool.mypy]
-python_version = "3.8"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py", "*_test.py"]
-addopts = "--cov=src --cov-report=html --cov-report=term-missing --strict-markers --strict-config"
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
-    "hardware: marks tests requiring hardware devices",
-    "security: marks security-focused tests"
-]
-filterwarnings = [
-    "error",
-    "ignore::UserWarning",
-    "ignore::DeprecationWarning"
-]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 
-[tool.coverage.run]
-source = ["src"]
-omit = [
-    "*/tests/*",
-    "*/test_*",
-    "*/conftest.py",
-    "*/__pycache__/*",
-    "*/venv/*",
-    "*/virtualenv/*"
-]
-
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "if self.debug:",
-    "if settings.DEBUG",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if 0:",
-    "if __name__ == .__main__.:"
-]
+[tool.setuptools.packages.find]
+where = ["src"]

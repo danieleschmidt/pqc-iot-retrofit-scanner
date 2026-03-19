@@ -1,38 +1,6 @@
-# Production Requirements for PQC IoT Retrofit Scanner
-# 🤖 Generated with Claude Code (https://claude.ai/code)
-# Updated with secure dependency versions
+# Runtime dependencies
+click>=8.0
 
-# Core dependencies
-click>=8.0.0
-pyyaml>=6.0
-requests>=2.31.0  # Updated for security fixes
-cryptography>=44.0.1  # Updated to fix CVE-2024-12797 and other vulnerabilities
-pycryptodome>=3.19.1  # Updated to fix CVE-2023-52323 side-channel vulnerability
-
-# Optional performance dependencies
-psutil>=5.9.0  # System monitoring
-lz4>=4.0.0     # Fast compression
-numpy>=1.21.0  # Numerical operations
-
-# Optional analysis dependencies  
-capstone>=4.0.0  # Disassembly (optional)
-lief>=0.12.0     # Binary analysis (optional)
-pyelftools>=0.29   # ELF parsing (optional)
-
-# Development and testing (optional)
-pytest>=7.0.0
-pytest-cov>=4.0.0
-black>=22.0.0
-mypy>=0.991
-
-# Web server dependencies (optional)
-fastapi>=0.85.0
-uvicorn>=0.18.0
-
-# Database dependencies (optional)
-sqlalchemy>=1.4.0
-alembic>=1.8.0
-
-# Monitoring dependencies (optional)
-prometheus-client>=0.15.0
-structlog>=22.0.0
+# Development / testing
+pytest>=7.0
+pytest-cov>=4.0
